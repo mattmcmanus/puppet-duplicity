@@ -1,8 +1,7 @@
 class duplicity {
   # Install the package
   package {   
-    'duplicity': ensure => present,
-    'python-boto': ensure => present
+    ['duplicity', 'python-boto']: ensure => present
   }
   
   if $enable_backup {
