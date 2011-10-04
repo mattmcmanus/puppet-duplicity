@@ -14,13 +14,10 @@ class duplicity {
     }
     
     file {
-      "root/scripts":
-        path => "/root/scripts/",
-        ensure => directory;
       "file-backup.sh":
         path => "/root/scripts/file-backup.sh",
         content  => template("duplicity/file-backup.sh.erb"),
-        require => File["root/scripts"],
+        require => File["root/scripts"], # Defined in basenode
         owner => root, group => 0, mode => 0500,
         ensure => present;
     }
