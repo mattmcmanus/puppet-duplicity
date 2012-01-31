@@ -1,15 +1,21 @@
 class duplicity {
   # Install the package
   package {
-    ['duplicity', 'python-boto']: ensure => present
+    ['duplicity', 'python-boto', 'python-rackspace-cloudfiles']: ensure => present
   }
 
   if $enable_backup {
-    if !$s3_bucket {
-      fail("You need to define a bucket name!")
+
+    if $backup_dest in [ 's3', 'cf' ] {
+      $backup_dest_real = $backup_dest
+    } else {
+      fail('$backup_dest required and at this time supports s3 for amazon s3 and cf for Rackspace cloud files')
     }
 
-    if (!$aws_access_key_id and !$aws_secret_access_key and !$passphrase) {
+    if !$dest_container {
+      fail('You need to define a container/bucket name in $container!')
+    }
+    if (!$dest_id or !$dest_key or !$passphrase) {
       fail("You need to set all of your key variables: aws_access_key_id, aws_secret_access_key and passphrase")
     }
 
@@ -17,7 +23,7 @@ class duplicity {
       "file-backup.sh":
         path => "/root/scripts/file-backup.sh",
         content  => template("duplicity/file-backup.sh.erb"),
-        require => File["root/scripts"], # Defined in basenode
+        require => [File["root/scripts"], Package["duplicity"]],
         owner => root, group => 0, mode => 0500,
         ensure => present;
     }
