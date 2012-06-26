@@ -23,6 +23,6 @@ describe 'duplicity' do
   it {
     should contain_file('file-backup.sh') \
       .with_path('/root/scripts/file-backup.sh') \
-      .with_content(/duplicity remove-older-than 6M --include \'\/etc\/\' --exclude \'\*\*\' \/ s3\+https:\/\/#{Regexp.escape(fqdn)}/)
+      .with_content(/duplicity --no-encryption --remove-older-than 6M --include \'\/etc\/\' --exclude \'\*\*\' \/ s3\+https:\/\/#{Regexp.escape(fqdn)}/)
   }
 end
