@@ -3,6 +3,7 @@ class duplicity(
   $bucket = $duplicity::params::bucket,
   $dest_id = $duplicity::params::dest_id,
   $dest_key = $duplicity::params::dest_key,
+  $folder = $duplicity::params::folder,
   $cloud = $duplicity::params::cloud
 ) inherits duplicity::params {
 
@@ -23,20 +24,23 @@ class duplicity(
     fail("You need to set all of your key variables: dest_id, dest_key")
   }
 
-  file {
-    "file-backup.sh":
-      path => "/root/scripts/file-backup.sh",
+  $script_path = '/usr/local/bin/duplicity_backup_puppet.sh'
+
+  file { 'file-backup.sh':
+      path => $script_path,
       content  => template("duplicity/file-backup.sh.erb"),
-      require => [File["root/scripts"], Package["duplicity"]],
-      owner => root, group => 0, mode => 0500,
+      require => Package["duplicity"],
+      owner => root,
+      group => 0,
+      mode => 0700,
       ensure => present;
   }
 
   cron { 'duplicity_backup_cron':
-    command => "/bin/sh /root/scripts/file-backup.sh",
+    command => "/bin/sh $script_path",
     user => 'root',
     minute => 0,
     hour => 1,
-    require => [ File['file-backup.sh'] ],
+    require => File['file-backup.sh'],
   }
 }

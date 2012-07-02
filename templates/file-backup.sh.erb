@@ -8,6 +8,6 @@ export AWS_ACCESS_KEY_ID=<%= dest_id %>
 export AWS_SECRET_ACCESS_KEY=<%= dest_key %>
 <% end -%>
 
-duplicity --no-encryption --remove-older-than 6M <% @directories.each do |dir| %>--include '<%= dir %>' <% end -%>--exclude '**' / <%= cloud %>+https://<%= bucket %>
+duplicity --full-if-older-than 30D --s3-use-new-style --no-encryption <% @directories.each do |dir| %>--include '<%= dir %>' <% end -%>--exclude '**' / <%= cloud %>+http://<%= bucket %>/<%= folder %>
 
 exit 0

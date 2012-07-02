@@ -12,6 +12,7 @@ describe 'duplicity' do
 
   let(:params) {
     {
+      :bucket       => 'somebucket',
       :directories    => [ '/etc/' ],
       :dest_id  => 'some_id',
       :dest_key => 'some_key'
@@ -22,7 +23,7 @@ describe 'duplicity' do
 
   it {
     should contain_file('file-backup.sh') \
-      .with_path('/root/scripts/file-backup.sh') \
-      .with_content(/duplicity --no-encryption --remove-older-than 6M --include \'\/etc\/\' --exclude \'\*\*\' \/ s3\+https:\/\/#{Regexp.escape(fqdn)}/)
+      .with_path('/usr/local/bin/duplicity_backup_puppet.sh') \
+      .with_content(/duplicity --full-if-older-than 30D --s3-use-new-style --no-encryption --include \'\/etc\/\' --exclude \'\*\*\' \/ s3\+http:\/\/somebucket\/#{Regexp.escape(fqdn)}/)
   }
 end
