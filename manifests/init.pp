@@ -4,12 +4,13 @@ class duplicity(
   $dest_id = $duplicity::params::dest_id,
   $dest_key = $duplicity::params::dest_key,
   $folder = $duplicity::params::folder,
-  $cloud = $duplicity::params::cloud
+  $cloud = $duplicity::params::cloud,
+  $pubkey_id = $duplicity::params::pubkey_id
 ) inherits duplicity::params {
 
-  # Install the package
+  # Install the packages
   package {
-    ['duplicity', 'python-boto', 'python-rackspace-cloudfiles']: ensure => present
+    ['duplicity', 'python-boto', 'gnupg']: ensure => present
   }
 
 
@@ -42,5 +43,13 @@ class duplicity(
     minute => 0,
     hour => 1,
     require => File['file-backup.sh'],
+  }
+
+  if $pubkey_id {
+    exec { 'duplicity-pgp':
+      command => "gpg --keyserver subkeys.pgp.net --recv-keys $pubkey_id",
+      path    => "/usr/bin:/usr/sbin:/bin",
+      unless  => "gpg --list-key $pubkey_id"
+    }
   }
 }

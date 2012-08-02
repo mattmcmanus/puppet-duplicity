@@ -1,4 +1,4 @@
-class duplicity::params inherits duplicity::defaults {
+class duplicity::defaults {
   $bucket = $::fqdn # XXX need to find some good default, or none
   $folder = $::fqdn
   $dest_id = $::duplicity_dest_id
