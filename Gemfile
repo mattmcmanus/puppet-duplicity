@@ -7,3 +7,4 @@ gem 'puppet', '>= 2.7'
 gem 'guard-shell', '>= 0.4.0'
 gem 'libnotify' if RUBY_PLATFORM.downcase.include?("linux")
 gem 'growl' if RUBY_PLATFORM.downcase.include?("darwin")
+gem 'puppetlabs_spec_helper'
