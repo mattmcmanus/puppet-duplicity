@@ -3,4 +3,4 @@
  * make full backup time configurable
  * write more tests
  * rename "folder"
- * pubkey encryption (also add the pubkey to keyring)
+ * add tests for defaults, not sure how to do it with puppet-rspec

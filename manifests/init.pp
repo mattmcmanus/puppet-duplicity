@@ -1,6 +1,6 @@
 class duplicity(
   $directories,
-  $bucket,
+  $bucket = $duplicity::params::bucket,
   $dest_id = $duplicity::params::dest_id,
   $dest_key = $duplicity::params::dest_key,
   $folder = $duplicity::params::folder,

@@ -1,8 +1,8 @@
-class duplicity::params inherits duplicity::defaults {
-  $folder = $::fqdn
-  $dest_id = $::duplicity_dest_id
-  $dest_key = $::duplicity_dest_key
-  $cloud = 's3'
-  $bucket = undef
-  $pubkey_id = undef
+class duplicity::params(
+  $bucket = undef,
+  $dest_id = undef,
+  $dest_key = undef,
+  $cloud = $duplicity::defaults::cloud,
+  $pubkey_id = undef,
+) inherits duplicity::defaults {
 }
