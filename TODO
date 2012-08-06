@@ -1,3 +1,5 @@
+ * make a define out of it so we can specify more than one backup
+ * write restore documentation
  * Make retention configurable
  * guard-rspec
  * make full backup time configurable
