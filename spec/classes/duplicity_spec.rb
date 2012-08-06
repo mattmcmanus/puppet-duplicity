@@ -32,8 +32,37 @@ describe 'duplicity' do
         .with_content(/duplicity --full-if-older-than 30D --s3-use-new-style --no-encryption --include \'\/etc\/\' --exclude \'\*\*\' \/ s3\+http:\/\/somebucket\/#{Regexp.escape(fqdn)}/)
     end
 
+    it  "adds a cronjob at midnight be default" do
+       should contain_cron('duplicity_backup_cron') \
+         .with_command("/bin/sh /usr/local/bin/duplicity_backup_puppet.sh") \
+         .with_user('root') \
+         .with_minute(0) \
+         .with_hour(0)
+    end
+
+
     it "should make a full backup every X days" do
 
+    end
+  end
+
+  context "defined backup zime" do
+
+    let(:params) {
+      {
+        :bucket       => 'somebucket',
+        :directories  => [ '/etc/', '/some_other_dir/' ],
+        :dest_id      => 'some_id',
+        :dest_key     => 'some_key',
+        :hour         => 5,
+        :minute       => 23
+      }
+    }
+
+    it "should be able to handle a specified backup time" do
+       should contain_cron('duplicity_backup_cron') \
+         .with_minute(23) \
+         .with_hour(5)
     end
   end
 

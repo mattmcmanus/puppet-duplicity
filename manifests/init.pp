@@ -5,7 +5,9 @@ class duplicity(
   $dest_key = $duplicity::params::dest_key,
   $folder = $duplicity::params::folder,
   $cloud = $duplicity::params::cloud,
-  $pubkey_id = $duplicity::params::pubkey_id
+  $pubkey_id = $duplicity::params::pubkey_id,
+  $hour = $duplicity::params::hour,
+  $minute = $duplicity::params::minute
 ) inherits duplicity::params {
 
   # Install the packages
@@ -40,8 +42,8 @@ class duplicity(
   cron { 'duplicity_backup_cron':
     command => "/bin/sh $script_path",
     user => 'root',
-    minute => 0,
-    hour => 1,
+    minute => $minute,
+    hour => $hour,
     require => File['file-backup.sh'],
   }
 
