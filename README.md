@@ -40,13 +40,14 @@ Example:
       }
     }
 
-    node /kellerautomat.*/ {
+    node 'kellerautomat' {
 
-      include defaultgeloet
+      include defaults
 
-      class { 'duplicity' :
+      duplicity { 'blubbi' :
         directories => [
-          '/home/soenke/',
+          '/home/soenke/projects/test-puppet',
+          '/home/soenke/Private/Dropbox/Diplom',
         ],
       }
     }

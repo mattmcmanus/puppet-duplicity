@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'duplicity' do
+describe 'duplicity', :type => :define do
 
   fqdn = 'somehost.domaindomain.org'
 
@@ -9,6 +9,8 @@ describe 'duplicity' do
       :fqdn => fqdn
     }
   }
+
+  let(:title) { 'some_backup_name' }
 
   context "no encryption" do
 
@@ -26,18 +28,13 @@ describe 'duplicity' do
       should contain_package('gnupg')
     end
 
-    it "generates a file backup script to /usr/local/bin" do
-      should contain_file('file-backup.sh') \
-        .with_path('/usr/local/bin/duplicity_backup_puppet.sh') \
-        .with_content(/duplicity --full-if-older-than 30D --s3-use-new-style --no-encryption --include \'\/etc\/\' --exclude \'\*\*\' \/ s3\+http:\/\/somebucket\/#{Regexp.escape(fqdn)}/)
-    end
-
-    it  "adds a cronjob at midnight be default" do
-       should contain_cron('duplicity_backup_cron') \
-         .with_command("/bin/sh /usr/local/bin/duplicity_backup_puppet.sh") \
-         .with_user('root') \
-         .with_minute(0) \
-         .with_hour(0)
+    it "adds a cronjob at midnight be default" do
+      should contain_cron('some_backup_name') \
+        .with_command("duplicity --full-if-older-than 30D --s3-use-new-style --no-encryption --include '/etc/' --exclude '**' / 's3\+http://somebucket/#{fqdn}'") \
+        .with_user('root') \
+        .with_minute(0) \
+        .with_hour(0) \
+        .with_environment([ 'AWS_ACCESS_KEY_ID=\'some_id\'', 'AWS_SECRET_ACCESS_KEY=\'some_key\'' ])
     end
 
 
@@ -60,7 +57,7 @@ describe 'duplicity' do
     }
 
     it "should be able to handle a specified backup time" do
-       should contain_cron('duplicity_backup_cron') \
+       should contain_cron('some_backup_name') \
          .with_minute(23) \
          .with_hour(5)
     end
@@ -78,9 +75,8 @@ describe 'duplicity' do
     }
 
     it "should be able to backup more than one directory" do
-      should contain_file('file-backup.sh') \
-        .with_path('/usr/local/bin/duplicity_backup_puppet.sh') \
-        .with_content(/duplicity --full-if-older-than 30D --s3-use-new-style --no-encryption --include \'\/etc\/\' --include \'\/some_other_dir\/\' --exclude \'\*\*\' \/ s3\+http:\/\/somebucket\/#{Regexp.escape(fqdn)}/)
+      should contain_cron('some_backup_name') \
+        .with_command(/--include \'\/etc\/\' --include \'\/some_other_dir\/\' --exclude \'\*\*\' \//)
     end
   end
 
@@ -100,8 +96,8 @@ describe 'duplicity' do
     }
 
     it "should use pubkey encryption if keyid is provided" do
-      should contain_file('file-backup.sh') \
-        .with_content(/duplicity --full-if-older-than 30D --s3-use-new-style --encrypt-key #{some_pubkey_id} --include \'\/etc\/\' --exclude \'\*\*\' \/ s3\+http:\/\/somebucket\/#{Regexp.escape(fqdn)}/)
+      should contain_cron('some_backup_name') \
+        .with_command(/--encrypt-key #{some_pubkey_id}/)
     end
 
     it "should download and import the specified pubkey" do

@@ -1,13 +1,1 @@
-#!/bin/bash
-
-<% if cloud == "cf" -%>
-export CLOUDFILES_USERNAME=<%= dest_id %>
-export CLOUDFILES_APIKEY=<%= dest_key %>
-<% else -%>
-export AWS_ACCESS_KEY_ID=<%= dest_id %>
-export AWS_SECRET_ACCESS_KEY=<%= dest_key %>
-<% end -%>
-
-duplicity --full-if-older-than 30D --s3-use-new-style <% if @pubkey_id -%>--encrypt-key <%= @pubkey_id -%><% else -%>--no-encryption<% end -%> <% @directories.each do |dir| %>--include '<%= dir %>' <% end -%>--exclude '**' / <%= cloud %>+http://<%= bucket %>/<%= folder %>
-
-exit 0
+duplicity --full-if-older-than 30D --s3-use-new-style <% if @_pubkey_id -%>--encrypt-key <%= @_pubkey_id -%><% else -%>--no-encryption<% end -%> <% @directories.each do |dir| %>--include '<%= dir %>' <% end -%>--exclude '**' / '<%= @_cloud %>+http://<%= @_bucket %>/<%= @_folder -%>'
