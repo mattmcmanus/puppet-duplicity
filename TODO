@@ -6,3 +6,4 @@
  * write more tests
  * rename "folder"
  * add tests for defaults, not sure how to do it with puppet-rspec
+ * rename duplicity define to duplicity::job

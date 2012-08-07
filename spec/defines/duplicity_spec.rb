@@ -17,7 +17,7 @@ describe 'duplicity', :type => :define do
     let(:params) {
       {
         :bucket       => 'somebucket',
-        :directories    => [ '/etc/' ],
+        :directory    => '/etc/',
         :dest_id  => 'some_id',
         :dest_key => 'some_key'
       }
@@ -48,7 +48,7 @@ describe 'duplicity', :type => :define do
     let(:params) {
       {
         :bucket       => 'somebucket',
-        :directories  => [ '/etc/', '/some_other_dir/' ],
+        :directory    => '/etc/',
         :dest_id      => 'some_id',
         :dest_key     => 'some_key',
         :hour         => 5,
@@ -63,23 +63,6 @@ describe 'duplicity', :type => :define do
     end
   end
 
-  context "more than one directory to backup" do
-
-    let(:params) {
-      {
-        :bucket       => 'somebucket',
-        :directories    => [ '/etc/', '/some_other_dir/' ],
-        :dest_id  => 'some_id',
-        :dest_key => 'some_key'
-      }
-    }
-
-    it "should be able to backup more than one directory" do
-      should contain_cron('some_backup_name') \
-        .with_command(/--include \'\/etc\/\' --include \'\/some_other_dir\/\' --exclude \'\*\*\' \//)
-    end
-  end
-
   context 'duplicity with pubkey encryption' do
 
     some_pubkey_id = '15ABDA79'
@@ -88,7 +71,7 @@ describe 'duplicity', :type => :define do
     let(:params) {
       {
         :bucket       => 'somebucket',
-        :directories    => [ '/etc/' ],
+        :directory    => '/etc/',
         :dest_id  => 'some_id',
         :dest_key => 'some_key',
         :pubkey_id   => some_pubkey_id

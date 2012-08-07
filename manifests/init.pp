@@ -1,5 +1,5 @@
 define duplicity(
-  $directories,
+  $directory,
   $bucket = 'undef',
   $dest_id = 'undef',
   $dest_key = 'undef',
