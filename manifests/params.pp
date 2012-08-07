@@ -6,6 +6,7 @@ class duplicity::params(
   $pubkey_id             = undef,
   $hour                  = $duplicity::defaults::hour,
   $minute                = $duplicity::defaults::minute,
-  $full_if_older_than    = $duplicity::defaults::full_if_older_than
+  $full_if_older_than    = $duplicity::defaults::full_if_older_than,
+  $remove_older_than     = $duplicity::defaults::remove_older_than
 ) inherits duplicity::defaults {
 }

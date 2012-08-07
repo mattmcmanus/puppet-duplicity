@@ -30,7 +30,7 @@ describe 'duplicity', :type => :define do
 
     it "adds a cronjob at midnight be default" do
       should contain_cron('some_backup_name') \
-        .with_command("duplicity --full-if-older-than 30D --s3-use-new-style --no-encryption --include '/etc/' --exclude '**' / 's3\+http://somebucket/#{fqdn}/some_backup_name/'") \
+        .with_command("duplicity --full-if-older-than 30D --s3-use-new-style --no-encryption --include '/etc/' --exclude '**' / 's3\+http://somebucket/#{fqdn}/some_backup_name/' && duplicity remove-older-than 6M --force 's3\+http://somebucket/#{fqdn}/some_backup_name/'") \
         .with_user('root') \
         .with_minute(0) \
         .with_hour(0) \
@@ -78,6 +78,24 @@ describe 'duplicity', :type => :define do
        should contain_cron('some_backup_name') \
          .with_minute(23) \
          .with_hour(5)
+    end
+  end
+
+  context "with defined remove-older-than" do
+
+    let(:params) {
+      {
+        :bucket             => 'somebucket',
+        :directory          => '/etc/',
+        :dest_id            => 'some_id',
+        :dest_key           => 'some_key',
+        :remove_older_than => '7D',
+      }
+    }
+
+    it "should be able to handle a specified remove-older-than time" do
+      should contain_cron('some_backup_name') \
+        .with_command(/remove-older-than 7D/) \
     end
   end
 

@@ -8,7 +8,8 @@ define duplicity(
   $pubkey_id = 'undef',
   $hour = 'undef',
   $minute = 'undef',
-  $full_if_older_than = 'undef'
+  $full_if_older_than = 'undef',
+  $remove_older_than = 'undef'
 ) {
 
   include duplicity::params
@@ -56,6 +57,11 @@ define duplicity(
   case $full_if_older_than {
     'undef': { $_full_if_older_than = $duplicity::params::full_if_older_than }
     default: { $_full_if_older_than = $full_if_older_than }
+  }
+
+  case $remove_older_than {
+    'undef': { $_remove_older_than = $duplicity::params::remove_older_than }
+    default: { $_remove_older_than = $remove_older_than }
   }
 
   # Install the packages
