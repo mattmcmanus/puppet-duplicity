@@ -1,8 +1,7 @@
  * make a define out of it so we can specify more than one backup
  * write restore documentation
- * Make retention configurable
+ * Make retention configurable and set a default -> remove-older-than
  * guard-rspec
- * make full backup time configurable
  * write more tests
  * rename "folder"
  * add tests for defaults, not sure how to do it with puppet-rspec

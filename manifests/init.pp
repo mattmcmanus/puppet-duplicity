@@ -7,7 +7,8 @@ define duplicity(
   $cloud = 'undef',
   $pubkey_id = 'undef',
   $hour = 'undef',
-  $minute = 'undef'
+  $minute = 'undef',
+  $full_if_older_than = 'undef'
 ) {
 
   include duplicity::params
@@ -50,6 +51,11 @@ define duplicity(
   case $minute {
     'undef': { $_minute = $duplicity::params::minute }
     default: { $_minute = $minute }
+  }
+
+  case $full_if_older_than {
+    'undef': { $_full_if_older_than = $duplicity::params::full_if_older_than }
+    default: { $_full_if_older_than = $full_if_older_than }
   }
 
   # Install the packages

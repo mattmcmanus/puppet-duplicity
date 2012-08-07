@@ -43,6 +43,24 @@ describe 'duplicity', :type => :define do
     end
   end
 
+  context "with defined force full-backup" do
+
+    let(:params) {
+      {
+        :bucket             => 'somebucket',
+        :directory          => '/etc/',
+        :dest_id            => 'some_id',
+        :dest_key           => 'some_key',
+        :full_if_older_than => '5D',
+      }
+    }
+
+    it "should be able to handle a specified backup time" do
+      should contain_cron('some_backup_name') \
+        .with_command(/--full-if-older-than 5D/) \
+    end
+  end
+
   context "with defined backup time" do
 
     let(:params) {
