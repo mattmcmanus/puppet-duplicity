@@ -1,61 +1,66 @@
 define duplicity(
   $directory,
-  $bucket = 'undef',
-  $dest_id = 'undef',
-  $dest_key = 'undef',
-  $folder = 'undef',
-  $cloud = 'undef',
-  $pubkey_id = 'undef',
-  $hour = 'undef',
-  $minute = 'undef',
-  $full_if_older_than = 'undef'
+  $bucket = undef,
+  $dest_id = undef,
+  $dest_key = undef,
+  $folder = undef,
+  $cloud = undef,
+  $pubkey_id = undef,
+  $hour = undef,
+  $minute = undef,
+  $full_if_older_than = undef,
 ) {
 
   include duplicity::params
 
-  case $bucket {
-    'undef': { $_bucket = $duplicity::params::bucket }
-    default: { $_bucket = $bucket }
+  $_bucket = $bucket ? {
+    undef => $duplicity::params::bucket,
+    default => $bucket
   }
 
-  case $dest_id {
-    'undef': { $_dest_id = $duplicity::params::dest_id }
-    default: { $_dest_id = $dest_id }
+  $_dest_id = $dest_id ? {
+    undef => $duplicity::params::dest_id,
+    default => $dest_id
   }
 
-  case $dest_key {
-    'undef': { $_dest_key = $duplicity::params::dest_key }
-    default: { $_dest_key = $dest_key }
+  $_dest_key = $dest_key ? {
+    undef => $duplicity::params::dest_key,
+    default => $dest_key
   }
 
-  case $folder {
-    'undef': { $_folder = $duplicity::params::folder }
-    default: { $_folder = $folder }
+  $_folder = $folder ? {
+    undef => $duplicity::params::folder,
+    default => $folder
   }
 
-  case $cloud {
-    'undef': { $_cloud = $duplicity::params::cloud }
-    default: { $_cloud = $cloud }
+  $_cloud = $cloud ? {
+    undef => $duplicity::params::cloud,
+    default => $cloud
   }
 
-  case $pubkey_id {
-    'undef': { $_pubkey_id = $duplicity::params::pubkey_id }
-    default: { $_pubkey_id = $pubkey_id }
+  $_pubkey_id = $pubkey_id ? {
+    undef => $duplicity::params::pubkey_id,
+    default => $pubkey_id
   }
 
-  case $hour {
-    'undef': { $_hour = $duplicity::params::hour }
-    default: { $_hour = $hour }
+  $_hour = $hour ? {
+    undef => $duplicity::params::hour,
+    default => $hour
   }
 
-  case $minute {
-    'undef': { $_minute = $duplicity::params::minute }
-    default: { $_minute = $minute }
+  $_minute = $minute ? {
+    undef => $duplicity::params::minute,
+    default => $minute
   }
 
-  case $full_if_older_than {
-    'undef': { $_full_if_older_than = $duplicity::params::full_if_older_than }
-    default: { $_full_if_older_than = $full_if_older_than }
+  $_full_if_older_than = $full_if_older_than ? {
+    undef => $duplicity::params::full_if_older_than,
+    default => $full_if_older_than
+  }
+
+  $_encryption = $_pubkey_id ? {
+    undef => '--no-encryption',
+    default => "--encrypt-key $_pubkey_id"
   }
 
   # Install the packages

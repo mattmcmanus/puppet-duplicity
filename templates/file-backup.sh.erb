@@ -1,1 +1,1 @@
-duplicity --full-if-older-than <%= @_full_if_older_than -%> --s3-use-new-style <% if @_pubkey_id -%>--encrypt-key <%= @_pubkey_id -%><% else -%>--no-encryption<% end -%> --include '<%= @directory -%>' --exclude '**' / '<%= @_cloud -%>+http://<%= @_bucket -%>/<%= @_folder -%>/<%= @name -%>/'<%= '' -%>
+duplicity --full-if-older-than <%= @_full_if_older_than -%> --s3-use-new-style <%= @_encryption -%> --include '<%= @directory -%>' --exclude '**' / '<%= @_cloud -%>+http://<%= @_bucket -%>/<%= @_folder -%>/<%= @name -%>/'<%= '' -%>

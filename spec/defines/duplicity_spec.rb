@@ -109,9 +109,48 @@ describe 'duplicity', :type => :define do
     end
   end
 
+  context 'with default bucket and bucket as param' do
+    let(:params) {
+      {
+        :directory    => '/etc/',
+        :bucket       => 'from_param'
+      }
+    }
+
+    let (:pre_condition) {
+      "class { 'duplicity::params' :
+        bucket => 'default',
+        dest_id => 'some_id',
+        dest_key => 'some_key'
+      }"
+    }
+
+    it "should override default bucket with param" do
+      should contain_cron('some_backup_name') \
+        .with_command(/from_param/)
+    end
+  end
+
   context 'duplicity defaults' do
+    let(:params) {
+      {
+        :directory    => '/etc/',
+      }
+    }
+
+    let (:pre_condition) {
+      "class { 'duplicity::params' :
+        bucket => 'another_bucket',
+        dest_id => 'some_id',
+        dest_key => 'some_key'
+      }"
+    }
 
     it "should be able to set a global cloud key pair config" do
+      should contain_cron('some_backup_name') \
+        .with_environment([ 'AWS_ACCESS_KEY_ID=\'some_id\'', 'AWS_SECRET_ACCESS_KEY=\'some_key\'' ]) \
+        .with_command(/another_bucket/)
+
     end
 
     it "should be able to set a global pubkey id" do
