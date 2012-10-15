@@ -9,6 +9,7 @@ define duplicity(
   $hour = undef,
   $minute = undef,
   $full_if_older_than = undef,
+  $pre_command = undef
 ) {
 
   include duplicity::params
@@ -56,6 +57,11 @@ define duplicity(
   $_full_if_older_than = $full_if_older_than ? {
     undef => $duplicity::params::full_if_older_than,
     default => $full_if_older_than
+  }
+
+  $_pre_command = $pre_command ? {
+    undef => '',
+    default => "$pre_command && "
   }
 
   $_encryption = $_pubkey_id ? {

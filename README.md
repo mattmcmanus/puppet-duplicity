@@ -14,15 +14,27 @@ Basic Usage
 -----------
     node 'kellerautomat' {
 
-      class { 'duplicity' :
-        directories => [
-          '/home/soenke/',
-        ],
+      duplicity { 'a_backup':
+        directory => '/home/soenke/',
         bucket => 'test-backup-soenke',
         dest_id => 'someid',
         dest_key => 'somekey'
       }
     }
+
+Preparing Backup
+----------------
+
+To prepare files for backup, you can use the ```pre_command``` parameter.
+For example: do a mysqldump before running duplicity.
+
+      duplicity { 'my_database':
+        pre_command => 'mysqldump my_database > /root/db-backup/my_database.sql'
+        directory => '/root/db-backup',
+        bucket => 'test-backup',
+        dest_id => 'someid',
+        dest_key => 'somekey'
+      }
 
 Global Parameters
 -----------------
@@ -45,10 +57,7 @@ Example:
       include defaults
 
       duplicity { 'blubbi' :
-        directories => [
-          '/home/soenke/projects/test-puppet',
-          '/home/soenke/Private/Dropbox/Diplom',
-        ],
+        directory => '/home/soenke/projects/test-puppet',
       }
     }
 

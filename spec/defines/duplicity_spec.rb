@@ -156,4 +156,22 @@ describe 'duplicity', :type => :define do
     it "should be able to set a global pubkey id" do
     end
   end
+
+  context "with pre_command" do
+
+    let(:params) {
+      {
+        :bucket       => 'somebucket',
+        :directory    => '/root/mysqldump',
+        :dest_id      => 'some_id',
+        :dest_key     => 'some_key',
+        :pre_command  => 'mysqldump database',
+      }
+    }
+
+    it "should prepend pre_command to cronjob" do
+       should contain_cron('some_backup_name') \
+         .with_command(/^mysqldump database && /)
+    end
+  end
 end
