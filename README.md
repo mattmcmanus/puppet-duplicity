@@ -5,10 +5,7 @@ Installs duplicity and quickly setup complete system backup to amazon s3
 
 Currently rewriting the module:
 
- * puppet-rspec tests
- * duplicity with gpg pubkey
- * you may specificy the dirs (no full backup)
- * no usage of global vars anymore
+ * you may only specify one dir (no full backup)
 
 Basic Usage
 -----------
@@ -28,13 +25,27 @@ Preparing Backup
 To prepare files for backup, you can use the ```pre_command``` parameter.
 For example: do a mysqldump before running duplicity.
 
-      duplicity { 'my_database':
-        pre_command => 'mysqldump my_database > /root/db-backup/my_database.sql'
-        directory => '/root/db-backup',
-        bucket => 'test-backup',
-        dest_id => 'someid',
-        dest_key => 'somekey'
-      }
+    duplicity { 'my_database':
+      pre_command => 'mysqldump my_database > /root/db-backup/my_database.sql',
+      directory => '/root/db-backup',
+      bucket => 'test-backup',
+      dest_id => 'someid',
+      dest_key => 'somekey',
+    }
+
+Removing Old Backups
+--------------------
+
+To remove old backups after a successful backup, you can use the ```remove_older_than``` parameter.
+For example: Remove backups older than 6 months:
+
+    duplicity { 'my_backup':
+      directory => '/root/db-backup',
+      bucket => 'test-backup',
+      dest_id => 'someid',
+      dest_key => 'somekey',
+      remove_older_than => '6M',
+    }
 
 Global Parameters
 -----------------
@@ -48,7 +59,8 @@ Example:
       class { 'duplicity::params' :
         bucket => 'test-backup-soenke',
         dest_id => 'someid',
-        dest_key => 'somekey'
+        dest_key => 'somekey',
+        remove_older_than => '6M',
       }
     }
 

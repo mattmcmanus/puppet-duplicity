@@ -81,6 +81,24 @@ describe 'duplicity', :type => :define do
     end
   end
 
+  context "with defined remove-older-than" do
+
+    let(:params) {
+      {
+        :bucket             => 'somebucket',
+        :directory          => '/etc/',
+        :dest_id            => 'some_id',
+        :dest_key           => 'some_key',
+        :remove_older_than => '7D',
+      }
+    }
+
+    it "should be able to handle a specified remove-older-than time" do
+      should contain_cron('some_backup_name') \
+        .with_command(/remove-older-than 7D/) \
+    end
+  end
+
   context 'duplicity with pubkey encryption' do
 
     some_pubkey_id = '15ABDA79'
