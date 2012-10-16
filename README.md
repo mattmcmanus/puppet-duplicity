@@ -1,11 +1,7 @@
 Puppet Duplicity
 ================
 
-Installs duplicity and quickly setup complete system backup to amazon s3
-
-Currently rewriting the module:
-
- * you may only specify one dir (no full backup)
+Install duplicity and quickly setup backup to amazon s3
 
 Basic Usage
 -----------
@@ -26,8 +22,8 @@ To prepare files for backup, you can use the ```pre_command``` parameter.
 For example: do a mysqldump before running duplicity.
 
     duplicity { 'my_database':
-      pre_command => 'mysqldump my_database > /root/db-backup/my_database.sql',
-      directory => '/root/db-backup',
+      pre_command => 'mysqldump my_database > /my_backupdir/my_database.sql',
+      directory => '/my_backupdir',
       bucket => 'test-backup',
       dest_id => 'someid',
       dest_key => 'somekey',
