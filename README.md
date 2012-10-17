@@ -80,6 +80,11 @@ otherwise because it cannot decrypt anything it downloads from the bucket.
 
 Check https://answers.launchpad.net/duplicity/+question/107216 for more information.
 
+Install duplicity without a backup job
+--------------------------------------
+
+If you want to only install the packages, include duplicity:packages
+
 Restore
 -------
 

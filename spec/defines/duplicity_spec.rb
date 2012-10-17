@@ -23,11 +23,6 @@ describe 'duplicity', :type => :define do
       }
     }
 
-    it "contains package" do
-      should contain_package('duplicity')
-      should contain_package('gnupg')
-    end
-
     it "adds a cronjob at midnight be default" do
       should contain_cron('some_backup_name') \
         .with_command("duplicity --full-if-older-than 30D --s3-use-new-style --no-encryption --include '/etc/' --exclude '**' / 's3\+http://somebucket/#{fqdn}/some_backup_name/'") \
@@ -163,6 +158,11 @@ describe 'duplicity', :type => :define do
         dest_key => 'some_key'
       }"
     }
+
+    it "contains package" do
+      should contain_package('duplicity')
+      should contain_package('gnupg')
+    end
 
     it "should be able to set a global cloud key pair config" do
       should contain_cron('some_backup_name') \

@@ -14,6 +14,7 @@ define duplicity(
 ) {
 
   include duplicity::params
+  include duplicity::packages
 
   $_bucket = $bucket ? {
     undef => $duplicity::params::bucket,
@@ -81,12 +82,6 @@ define duplicity(
   }
 
   $_target_url = "'$_cloud+http://$_bucket/$_folder/$name/'"
-
-  # Install the packages
-  package {
-    ['duplicity', 'python-boto', 'gnupg']: ensure => present
-  }
-
 
   if !($_cloud in [ 's3', 'cf' ]) {
     fail('$cloud required and at this time supports s3 for amazon s3 and cf for Rackspace cloud files')
