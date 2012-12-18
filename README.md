@@ -1,6 +1,8 @@
 Puppet Duplicity
 ================
 
+[![Build Status](https://travis-ci.org/Jimdo/puppet-duplicity.png)](https://travis-ci.org/Jimdo/puppet-duplicity)
+
 Install duplicity and quickly setup backup to amazon s3
 
 Basic Usage
