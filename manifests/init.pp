@@ -91,7 +91,7 @@ define duplicity(
 
   $_remove_older_than_command = $_remove_older_than ? {
     undef => '',
-    default => " && duplicity remove-older-than $_remove_older_than --force '$_target_url'"
+    default => " && duplicity remove-older-than $_remove_older_than --force $_target_url"
   }
 
   if (!$_dest_id or !$_dest_key) {
