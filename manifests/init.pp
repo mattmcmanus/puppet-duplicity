@@ -76,11 +76,6 @@ define duplicity(
     default => $remove_older_than,
   }
 
-  $_remove_older_than_command = $_remove_older_than ? {
-    undef => '',
-    default => " && duplicity remove-older-than $_remove_older_than --force '$_target_url'"
-  }
-
   if !($_cloud in [ 's3', 'cf' ]) {
     fail('$cloud required and at this time supports s3 for amazon s3 and cf for Rackspace cloud files')
   }
@@ -92,6 +87,11 @@ define duplicity(
   $_target_url = $_cloud ? {
     'cf' => "'cf+http://$_bucket'",
     's3' => "'s3+http://$_bucket/$_folder/$name/'"
+  }
+
+  $_remove_older_than_command = $_remove_older_than ? {
+    undef => '',
+    default => " && duplicity remove-older-than $_remove_older_than --force '$_target_url'"
   }
 
   if (!$_dest_id or !$_dest_key) {
