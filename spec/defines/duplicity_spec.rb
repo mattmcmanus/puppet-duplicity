@@ -112,7 +112,7 @@ describe 'duplicity', :type => :define do
 
     it "should be able to handle a specified remove-older-than time" do
       should contain_cron('some_backup_name') \
-        .with_command(/remove-older-than 7D/) \
+        .with_command(/remove-older-than 7D.* --no-encryption --force.*/) \
     end
   end
 
