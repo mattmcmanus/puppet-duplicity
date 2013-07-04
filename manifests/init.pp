@@ -17,34 +17,21 @@ define duplicity(
   include duplicity::params
   include duplicity::packages
 
-  $_bucket = $bucket ? {
-    undef => $duplicity::params::bucket,
-    default => $bucket
-  }
+  $spoolfile = "${duplicity::params::job_spool}/${name}.sh"
 
-  $_dest_id = $dest_id ? {
-    undef => $duplicity::params::dest_id,
-    default => $dest_id
-  }
-
-  $_dest_key = $dest_key ? {
-    undef => $duplicity::params::dest_key,
-    default => $dest_key
-  }
-
-  $_folder = $folder ? {
-    undef => $duplicity::params::folder,
-    default => $folder
-  }
-
-  $_cloud = $cloud ? {
-    undef => $duplicity::params::cloud,
-    default => $cloud
-  }
-
-  $_pubkey_id = $pubkey_id ? {
-    undef => $duplicity::params::pubkey_id,
-    default => $pubkey_id
+  duplicity::job { $name :
+    ensure => $ensure,
+    spoolfile => $spoolfile,
+    directory => $directory,
+    bucket => $bucket,
+    dest_id => $dest_id,
+    dest_key => $dest_key,
+    folder => $folder,
+    cloud => $cloud,
+    pubkey_id => $pubkey_id,
+    full_if_older_than => $full_if_older_than,
+    pre_command => $pre_command,
+    remove_older_than => $remove_older_than,
   }
 
   $_hour = $hour ? {
@@ -57,62 +44,19 @@ define duplicity(
     default => $minute
   }
 
-  $_full_if_older_than = $full_if_older_than ? {
-    undef => $duplicity::params::full_if_older_than,
-    default => $full_if_older_than
+  $_dest_id = $dest_id ? {
+    undef => $duplicity::params::dest_id,
+    default => $dest_id
   }
 
-  $_pre_command = $pre_command ? {
-    undef => '',
-    default => "$pre_command && "
+  $_dest_key = $dest_key ? {
+    undef => $duplicity::params::dest_key,
+    default => $dest_key
   }
 
-  $_encryption = $_pubkey_id ? {
-    undef => '--no-encryption',
-    default => "--encrypt-key $_pubkey_id"
-  }
-
-  $_remove_older_than = $remove_older_than ? {
-    undef   => $duplicity::params::remove_older_than,
-    default => $remove_older_than,
-  }
-
-  if !($_cloud in [ 's3', 'cf' ]) {
-    fail('$cloud required and at this time supports s3 for amazon s3 and cf for Rackspace cloud files')
-  }
-
-  case $ensure {
-    'present' : {
-
-      if !$directory {
-        fail('directory parameter has to be passed if ensure != absent')
-      }
-
-      if !$_bucket {
-        fail('You need to define a container/bucket name!')
-      }
-
-      if (!$_dest_id or !$_dest_key) {
-        fail("You need to set all of your key variables: dest_id, dest_key")
-      }
-
-    }
-
-    'absent' : {
-    }
-    default : {
-      fail('ensure parameter must be absent or present')
-    }
-  }
-
-  $_target_url = $_cloud ? {
-    'cf' => "'cf+http://$_bucket'",
-    's3' => "'s3+http://$_bucket/$_folder/$name/'"
-  }
-
-  $_remove_older_than_command = $_remove_older_than ? {
-    undef => '',
-    default => " && duplicity remove-older-than $_remove_older_than --s3-use-new-style $_encryption --force $_target_url"
+  $_cloud = $cloud ? {
+    undef => $duplicity::params::cloud,
+    default => $cloud
   }
 
   $environment = $_cloud ? {
@@ -123,17 +67,11 @@ define duplicity(
   cron { $name :
     ensure => $ensure,
     environment => $environment,
-    command => template("duplicity/file-backup.sh.erb"),
+    command => $spoolfile,
     user => 'root',
     minute => $_minute,
     hour => $_hour,
   }
 
-  if $_pubkey_id {
-    exec { 'duplicity-pgp':
-      command => "gpg --keyserver subkeys.pgp.net --recv-keys $_pubkey_id",
-      path    => "/usr/bin:/usr/sbin:/bin",
-      unless  => "gpg --list-key $_pubkey_id"
-    }
-  }
+  File[$spoolfile]->Cron[$name]
 }

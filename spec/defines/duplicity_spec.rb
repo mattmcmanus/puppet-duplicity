@@ -12,6 +12,8 @@ describe 'duplicity', :type => :define do
 
   let(:title) { 'some_backup_name' }
 
+  let(:spoolfile) { "/var/spool/duplicity/#{title}.sh" }
+
   context "cloud files environment" do
 
     let(:params) {
@@ -25,16 +27,20 @@ describe 'duplicity', :type => :define do
     }
 
     it "adds a cronjob at midnight be default" do
+
       should contain_cron('some_backup_name') \
-        .with_command("duplicity --full-if-older-than 30D --s3-use-new-style --no-encryption --include '/etc/' --exclude '**' / 'cf\+http://somebucket'") \
+        .with_command(spoolfile) \
         .with_user('root') \
         .with_minute(0) \
         .with_hour(0) \
         .with_environment([ 'CLOUDFILES_USERNAME=\'some_id\'', 'CLOUDFILES_APIKEY=\'some_key\'' ])
+
+      should contain_file(spoolfile) \
+        .with_content(/^duplicity --full-if-older-than 30D --s3-use-new-style --no-encryption --include '\/etc\/' --exclude '\*\*' \/ 'cf\+http:\/\/somebucket'$/)
     end
   end
 
-  context "no encryption" do
+  context "without encryption" do
 
     let(:params) {
       {
@@ -47,11 +53,14 @@ describe 'duplicity', :type => :define do
 
     it "adds a cronjob at midnight be default" do
       should contain_cron('some_backup_name') \
-        .with_command("duplicity --full-if-older-than 30D --s3-use-new-style --no-encryption --include '/etc/' --exclude '**' / 's3\+http://somebucket/#{fqdn}/some_backup_name/'") \
+        .with_command(spoolfile) \
         .with_user('root') \
         .with_minute(0) \
         .with_hour(0) \
         .with_environment([ 'AWS_ACCESS_KEY_ID=\'some_id\'', 'AWS_SECRET_ACCESS_KEY=\'some_key\'' ])
+
+      should contain_file(spoolfile) \
+        .with_content(/^duplicity --full-if-older-than 30D --s3-use-new-style --no-encryption --include '\/etc\/' --exclude '\*\*' \/ 's3\+http:\/\/somebucket\/#{fqdn}\/some_backup_name\/'$/)
     end
 
 
@@ -74,7 +83,10 @@ describe 'duplicity', :type => :define do
 
     it "should be able to handle a specified backup time" do
       should contain_cron('some_backup_name') \
-        .with_command(/--full-if-older-than 5D/) \
+        .with_command(spoolfile)
+
+      should contain_file(spoolfile) \
+        .with_content(/--full-if-older-than 5D/)
     end
   end
 
@@ -112,7 +124,10 @@ describe 'duplicity', :type => :define do
 
     it "should be able to handle a specified remove-older-than time" do
       should contain_cron('some_backup_name') \
-        .with_command(/remove-older-than 7D.* --no-encryption --force.*/) \
+        .with_command(spoolfile)
+
+      should contain_file(spoolfile) \
+        .with_content(/remove-older-than 7D.* --no-encryption --force.*/)
     end
   end
 
@@ -133,7 +148,10 @@ describe 'duplicity', :type => :define do
 
     it "should use pubkey encryption if keyid is provided" do
       should contain_cron('some_backup_name') \
-        .with_command(/--encrypt-key #{some_pubkey_id}/)
+        .with_command(spoolfile)
+
+      should contain_file(spoolfile) \
+        .with_content(/--encrypt-key #{some_pubkey_id}/)
     end
 
     it "should download and import the specified pubkey" do
@@ -162,7 +180,10 @@ describe 'duplicity', :type => :define do
 
     it "should override default bucket with param" do
       should contain_cron('some_backup_name') \
-        .with_command(/from_param/)
+        .with_command(spoolfile)
+
+      should contain_file(spoolfile) \
+        .with_content(/from_param/)
     end
   end
 
@@ -189,7 +210,10 @@ describe 'duplicity', :type => :define do
     it "should be able to set a global cloud key pair config" do
       should contain_cron('some_backup_name') \
         .with_environment([ 'AWS_ACCESS_KEY_ID=\'some_id\'', 'AWS_SECRET_ACCESS_KEY=\'some_key\'' ]) \
-        .with_command(/another_bucket/)
+        .with_command(spoolfile)
+
+      should contain_file(spoolfile) \
+        .with_content(/another_bucket/)
 
     end
 
@@ -210,8 +234,11 @@ describe 'duplicity', :type => :define do
     }
 
     it "should prepend pre_command to cronjob" do
-       should contain_cron('some_backup_name') \
-         .with_command(/^mysqldump database && /)
+      should contain_cron('some_backup_name') \
+        .with_command(spoolfile)
+
+      should contain_file(spoolfile) \
+        .with_content(/^mysqldump database && /)
     end
   end
 
@@ -223,8 +250,10 @@ describe 'duplicity', :type => :define do
       }
     }
 
-    it 'should remove the cron' do
+    it 'should remove the cron and the job file' do
       should contain_cron('some_backup_name') \
+        .with_ensure('absent')
+      should contain_file(spoolfile) \
         .with_ensure('absent')
     end
 
