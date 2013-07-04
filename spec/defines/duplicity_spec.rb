@@ -214,4 +214,19 @@ describe 'duplicity', :type => :define do
          .with_command(/^mysqldump database && /)
     end
   end
+
+  context 'with ensure => absent' do
+
+    let(:params) {
+      {
+        :ensure       => 'absent'
+      }
+    }
+
+    it 'should remove the cron' do
+      should contain_cron('some_backup_name') \
+        .with_ensure('absent')
+    end
+
+  end
 end
