@@ -64,9 +64,12 @@ define duplicity(
     's3' => ["AWS_ACCESS_KEY_ID='$_dest_id'", "AWS_SECRET_ACCESS_KEY='$_dest_key'"],
   }
 
+  Cron {
+    environment => $environment,
+  }
+
   cron { $name :
     ensure => $ensure,
-    environment => $environment,
     command => $spoolfile,
     user => 'root',
     minute => $_minute,
