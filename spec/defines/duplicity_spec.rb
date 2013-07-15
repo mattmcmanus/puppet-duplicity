@@ -28,14 +28,15 @@ describe 'duplicity', :type => :define do
 
     it "adds a cronjob at midnight be default" do
 
-      should contain_cron('some_backup_name') \
+      should contain_cron(title) \
         .with_command(spoolfile) \
         .with_user('root') \
         .with_minute(0) \
-        .with_hour(0) \
-        .with_environment([ 'CLOUDFILES_USERNAME=\'some_id\'', 'CLOUDFILES_APIKEY=\'some_key\'' ])
+        .with_hour(0)
 
       should contain_file(spoolfile) \
+        .with_content(/^CLOUDFILES_USERNAME='some_id'$/)\
+        .with_content(/^CLOUDFILES_APIKEY='some_key'$/)\
         .with_content(/^duplicity --full-if-older-than 30D --s3-use-new-style --no-encryption --include '\/etc\/' --exclude '\*\*' \/ 'cf\+http:\/\/somebucket'$/)
     end
   end
@@ -52,14 +53,15 @@ describe 'duplicity', :type => :define do
     }
 
     it "adds a cronjob at midnight be default" do
-      should contain_cron('some_backup_name') \
+      should contain_cron(title) \
         .with_command(spoolfile) \
         .with_user('root') \
         .with_minute(0) \
-        .with_hour(0) \
-        .with_environment([ 'AWS_ACCESS_KEY_ID=\'some_id\'', 'AWS_SECRET_ACCESS_KEY=\'some_key\'' ])
+        .with_hour(0)
 
       should contain_file(spoolfile) \
+        .with_content(/^AWS_ACCESS_KEY_ID='some_id'$/)\
+        .with_content(/^AWS_SECRET_ACCESS_KEY='some_key'$/)\
         .with_content(/^duplicity --full-if-older-than 30D --s3-use-new-style --no-encryption --include '\/etc\/' --exclude '\*\*' \/ 's3\+http:\/\/somebucket\/#{fqdn}\/some_backup_name\/'$/)
     end
 
@@ -82,7 +84,7 @@ describe 'duplicity', :type => :define do
     }
 
     it "should be able to handle a specified backup time" do
-      should contain_cron('some_backup_name') \
+      should contain_cron(title) \
         .with_command(spoolfile)
 
       should contain_file(spoolfile) \
@@ -104,7 +106,7 @@ describe 'duplicity', :type => :define do
     }
 
     it "should be able to handle a specified backup time" do
-       should contain_cron('some_backup_name') \
+       should contain_cron(title) \
          .with_minute(23) \
          .with_hour(5)
     end
@@ -123,7 +125,7 @@ describe 'duplicity', :type => :define do
     }
 
     it "should be able to handle a specified remove-older-than time" do
-      should contain_cron('some_backup_name') \
+      should contain_cron(title) \
         .with_command(spoolfile)
 
       should contain_file(spoolfile) \
@@ -147,7 +149,7 @@ describe 'duplicity', :type => :define do
     }
 
     it "should use pubkey encryption if keyid is provided" do
-      should contain_cron('some_backup_name') \
+      should contain_cron(title) \
         .with_command(spoolfile)
 
       should contain_file(spoolfile) \
@@ -179,7 +181,7 @@ describe 'duplicity', :type => :define do
     }
 
     it "should override default bucket with param" do
-      should contain_cron('some_backup_name') \
+      should contain_cron(title) \
         .with_command(spoolfile)
 
       should contain_file(spoolfile) \
@@ -208,11 +210,12 @@ describe 'duplicity', :type => :define do
     end
 
     it "should be able to set a global cloud key pair config" do
-      should contain_cron('some_backup_name') \
-        .with_environment([ 'AWS_ACCESS_KEY_ID=\'some_id\'', 'AWS_SECRET_ACCESS_KEY=\'some_key\'' ]) \
+      should contain_cron(title) \
         .with_command(spoolfile)
 
       should contain_file(spoolfile) \
+        .with_content(/^AWS_ACCESS_KEY_ID='some_id'$/)\
+        .with_content(/^AWS_SECRET_ACCESS_KEY='some_key'$/)\
         .with_content(/another_bucket/)
 
     end
@@ -234,7 +237,7 @@ describe 'duplicity', :type => :define do
     }
 
     it "should prepend pre_command to cronjob" do
-      should contain_cron('some_backup_name') \
+      should contain_cron(title) \
         .with_command(spoolfile)
 
       should contain_file(spoolfile) \
@@ -251,7 +254,7 @@ describe 'duplicity', :type => :define do
     }
 
     it 'should remove the cron and the job file' do
-      should contain_cron('some_backup_name') \
+      should contain_cron(title) \
         .with_ensure('absent')
       should contain_file(spoolfile) \
         .with_ensure('absent')

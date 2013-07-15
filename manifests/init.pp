@@ -44,30 +44,6 @@ define duplicity(
     default => $minute
   }
 
-  $_dest_id = $dest_id ? {
-    undef => $duplicity::params::dest_id,
-    default => $dest_id
-  }
-
-  $_dest_key = $dest_key ? {
-    undef => $duplicity::params::dest_key,
-    default => $dest_key
-  }
-
-  $_cloud = $cloud ? {
-    undef => $duplicity::params::cloud,
-    default => $cloud
-  }
-
-  $environment = $_cloud ? {
-    'cf' => ["CLOUDFILES_USERNAME='$_dest_id'", "CLOUDFILES_APIKEY='$_dest_key'"],
-    's3' => ["AWS_ACCESS_KEY_ID='$_dest_id'", "AWS_SECRET_ACCESS_KEY='$_dest_key'"],
-  }
-
-  Cron {
-    environment => $environment,
-  }
-
   cron { $name :
     ensure => $ensure,
     command => $spoolfile,
