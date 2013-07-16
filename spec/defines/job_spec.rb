@@ -233,4 +233,75 @@ describe 'duplicity::job' do
     end
 
   end
+
+  input_error_handling_cases = [
+    {
+      :params => {
+      },
+      :expected_error_pattern => /Must pass spoolfile/,
+    },
+    {
+      :params => {
+        :ensure => 'foo',
+        :spoolfile => "/path/to/some/spoolfile",
+      },
+      :expected_error_pattern => /ensure parameter must be absent or present/,
+    },
+    {
+      :params => {
+        :ensure => 'present',
+        :spoolfile => "/path/to/some/spoolfile",
+      },
+      :expected_error_pattern => /directory parameter has to be passed if ensure != absent/,
+    },
+    {
+      :params => {
+        :ensure => 'present',
+        :spoolfile => "/path/to/some/spoolfile",
+        :directory => '/path/to/backup',
+      },
+      :expected_error_pattern => /You need to define a container\/bucket name!/,
+    },
+    {
+      :params => {
+        :ensure => 'present',
+        :spoolfile => "/path/to/some/spoolfile",
+        :directory => '/path/to/backup',
+        :bucket       => 'somebucket',
+      },
+      :expected_error_pattern => /You need to set all of your key variables: dest_id, dest_key/,
+    },
+    {
+      :params => {
+        :ensure => 'present',
+        :spoolfile => "/path/to/some/spoolfile",
+        :directory => '/path/to/backup',
+        :bucket       => 'somebucket',
+        :dest_id => 'some_id',
+      },
+      :expected_error_pattern => /You need to set all of your key variables: dest_id, dest_key/,
+    },
+    {
+      :params => {
+        :ensure => 'present',
+        :spoolfile => "/path/to/some/spoolfile",
+        :directory => '/path/to/backup',
+        :bucket       => 'somebucket',
+        :dest_key => 'some_key',
+      },
+      :expected_error_pattern => /You need to set all of your key variables: dest_id, dest_key/,
+    },
+  ]
+
+  input_error_handling_cases.each do |error_case|
+
+    context "with handling of error #{error_case[:expected_error_pattern].to_s}" do
+
+      let (:params) { error_case[:params] }
+
+      it do
+        expect { catalogue }.to raise_error(Puppet::Error, error_case[:expected_error_pattern])
+      end
+    end
+  end
 end
