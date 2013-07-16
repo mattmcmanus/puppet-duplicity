@@ -1,37 +1,10 @@
 #!/bin/bash
+set -e
+set -o pipefail
 
-<% if backup_dest == "cf" -%>
-export CLOUDFILES_USERNAME=<%= dest_id %>
-export CLOUDFILES_APIKEY=<%= dest_key %>
-<% else -%>
-export AWS_ACCESS_KEY_ID=<%= dest_id %>
-export AWS_SECRET_ACCESS_KEY=<%= dest_key %>
-<% end -%>
-
-export PASSPHRASE='<%= passphrase %>'
-
-duplicity --exclude-other-filesystems --exclude /tmp --exclude /dev --exclude /proc --exclude /boot --exclude /bin --exclude /lib --exclude /media --exclude /mnt --exclude /sbin --exclude /selinux --exclude /srv --exclude /sys --exclude /usr / <%= backup_dest_real %>+http://<%= dest_container %>
-
-duplicity remove-older-than 6M --force <%= backup_dest_real %>+http://<%= dest_container %>
-
-<% if backup_dest == "cf" -%>
-export CLOUDFILES_USERNAME=
-export CLOUDFILES_APIKEY=
-<% else -%>
-export AWS_ACCESS_KEY_ID=
-export AWS_SECRET_ACCESS_KEY=
-<% end -%>
-
-export PASSPHRASE=
-
-exit 0
-
-
-#http://www.migueljacq.com/content/duplicity-and-rackspace-cloudfiles-api-backups
-#duplicity / cf+http://${CLOUD_CONTAINER}
-
-#Running the following will imply a 'restore' (without you having to even specify 'restore'):
-#duplicity cf+http://${CLOUD_CONTAINER} /path/to/restore/dir/
-
-#Verification is the same command as restore but with 'verify' as an explicit statement:
-#duplicity verify cf+http://${CLOUD_CONTAINER} /path/to/restore/dir/
+<% @_environment.each do |var|-%>
+<%= var %>
+<% end-%>
+<%= @_pre_command %>
+duplicity --full-if-older-than <%= @_full_if_older_than -%> --s3-use-new-style <%= @_encryption -%> --include '<%= @directory -%>' --exclude '**' / <%= @_target_url -%>
+<%= @_remove_older_than_command %>

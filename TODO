@@ -1,0 +1,3 @@
+ * write restore documentation
+ * guard-rspec
+ * rename duplicity define to duplicity::job
