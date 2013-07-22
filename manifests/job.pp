@@ -105,8 +105,8 @@ define duplicity::job(
   }
 
   $_environment = $_cloud ? {
-    'cf' => ["CLOUDFILES_USERNAME='$_dest_id'", "CLOUDFILES_APIKEY='$_dest_key'"],
-    's3' => ["AWS_ACCESS_KEY_ID='$_dest_id'", "AWS_SECRET_ACCESS_KEY='$_dest_key'"],
+    'cf' => ["export CLOUDFILES_USERNAME='$_dest_id'", "export CLOUDFILES_APIKEY='$_dest_key'"],
+    's3' => ["export AWS_ACCESS_KEY_ID='$_dest_id'", "export AWS_SECRET_ACCESS_KEY='$_dest_key'"],
   }
 
   $_target_url = $_cloud ? {
