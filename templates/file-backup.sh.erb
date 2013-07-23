@@ -2,6 +2,21 @@
 set -e
 set -o pipefail
 
+<% if @default_exit_code %>
+# coerce exit code in order to allow nagios plugin like behavior
+convert_exitcode() {
+	local ret=$?
+
+	if [ $ret -ne 0 ]; then
+		exit <%= default_exit_code %>
+	else
+		exit 0
+	fi
+}
+
+trap convert_exitcode EXIT
+<% end %>
+
 <% @_environment.each do |key,value|-%>
 export <%= key -%>='<%= value -%>'
 <% end-%>

@@ -218,6 +218,32 @@ describe 'duplicity::job' do
     end
   end
 
+  context "with coercion of non-zero return value to specific one" do
+
+    exit_code = 2
+
+    let(:params) {
+      {
+        :bucket             => 'somebucket',
+        :directory          => '/foo/bar/',
+        :dest_id            => 'some_id',
+        :dest_key           => 'some_key',
+        :spoolfile => spoolfile,
+        :default_exit_code => exit_code,
+      }
+    }
+
+    it "should contain one exit path for #{exit_code}" do
+      should contain_file(spoolfile) \
+        .with_content(/^\s*exit\s+#{exit_code}/)
+    end
+    it "should contain one exit path for exit 0" do
+      should contain_file(spoolfile) \
+        .with_content(/^\s*exit 0/)
+    end
+  end
+
+
   context 'with ensure => absent' do
 
     let(:params) {
