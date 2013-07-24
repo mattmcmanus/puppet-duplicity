@@ -10,6 +10,8 @@ describe 'duplicity::params', :type => :class do
     }
   }
 
+  # the new rspec version can check for successfull compilation, just add this as a reminder
+  # to use it once we're on the proper version.
   it "should compile" do
     be true
   end
