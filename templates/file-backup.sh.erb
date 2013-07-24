@@ -4,17 +4,8 @@ set -o pipefail
 
 <% if @default_exit_code %>
 # coerce exit code in order to allow nagios plugin like behavior
-convert_exitcode() {
-	local ret=$?
-
-	if [ $ret -ne 0 ]; then
-		exit <%= default_exit_code %>
-	else
-		exit 0
-	fi
-}
-
-trap convert_exitcode EXIT
+trap "exit <%= default_exit_code %>" ERR INT QUIT ABRT PIPE TERM XCPU XFSZ
+trap "" HUP WINCH
 <% end %>
 
 <% @_environment.each do |key,value|-%>
@@ -23,3 +14,5 @@ export <%= key -%>='<%= value -%>'
 <%= @_pre_command %>
 duplicity --full-if-older-than <%= @_full_if_older_than -%> --s3-use-new-style <%= @_encryption -%> --include '<%= @directory -%>' --exclude '**' / <%= @_target_url -%>
 <%= @_remove_older_than_command %>
+
+exit 0

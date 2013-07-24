@@ -232,14 +232,14 @@ describe 'duplicity::job' do
       }
     }
 
-    it "should contain one exit path for #{exit_code}" do
+    it "should ignore SIGHUP and SIGWINCH" do
       should contain_file(spoolfile) \
-        .with_content(/^\s*exit\s+#{exit_code}/)
+        .with_content(/^trap \"\" HUP WINCH$/)
     end
 
-    it "should contain one exit path for exit 0" do
+    it "should convert any exit code other than zero to the default exit code" do
       should contain_file(spoolfile) \
-        .with_content(/^\s*exit 0/)
+        .with_content(/^trap \"exit #{exit_code}\" ERR INT QUIT ABRT PIPE TERM XCPU XFSZ$/)
     end
   end
 
