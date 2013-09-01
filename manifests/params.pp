@@ -11,12 +11,12 @@ class duplicity::params(
   $job_spool = $duplicity::defaults::job_spool
 ) inherits duplicity::defaults {
 
-  file { $jobspool :
+  file { $job_spool :
     ensure => directory,
     owner  => root,
     group  => root,
     mode   => 0755,
   }
 
-  File[$jobspool] -> Duplicity::Job <| |>
+  File[$job_spool] -> Duplicity::Job <| |>
 }
