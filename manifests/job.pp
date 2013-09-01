@@ -76,7 +76,7 @@ define duplicity::job(
     default => $remove_older_than,
   }
 
-  if !($_cloud in [ 's3', 'cf' ]) {
+  if !($_cloud in [ 's3', 'cf', 'file' ]) {
     fail('$cloud required and at this time supports s3 for amazon s3 and cf for Rackspace cloud files')
   }
 
@@ -107,11 +107,13 @@ define duplicity::job(
   $_environment = $_cloud ? {
     'cf' => ["CLOUDFILES_USERNAME='$_dest_id'", "CLOUDFILES_APIKEY='$_dest_key'"],
     's3' => ["AWS_ACCESS_KEY_ID='$_dest_id'", "AWS_SECRET_ACCESS_KEY='$_dest_key'"],
+    'file' => [],
   }
 
   $_target_url = $_cloud ? {
     'cf' => "'cf+http://$_bucket'",
     's3' => "'s3+http://$_bucket/$_folder/$name/'"
+    'file' => "'file://$_bucket'",
   }
 
   $_remove_older_than_command = $_remove_older_than ? {
