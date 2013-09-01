@@ -112,8 +112,8 @@ define duplicity::job(
 
   $_target_url = $_cloud ? {
     'cf' => "'cf+http://$_bucket'",
-    's3' => "'s3+http://$_bucket/$_folder/$name/'"
-    'file' => "'file://$_bucket'",
+    's3' => "'s3+http://$_bucket/$_folder/$name/'",
+    'file' => "'file://$_bucket'"
   }
 
   $_remove_older_than_command = $_remove_older_than ? {
