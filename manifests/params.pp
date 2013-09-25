@@ -11,6 +11,10 @@ class duplicity::params(
   $job_spool = $duplicity::defaults::job_spool
 ) inherits duplicity::defaults {
 
+	@duplicity::gpg{ $pubkey_id: }
+	
+	Duplicity::Gpg <| |>
+	
   file { $job_spool :
     ensure => directory,
     owner  => root,

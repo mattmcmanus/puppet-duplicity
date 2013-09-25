@@ -131,10 +131,6 @@ define duplicity::job(
   }
 
   if $_pubkey_id {
-    exec { 'duplicity-pgp':
-      command => "gpg --keyserver subkeys.pgp.net --recv-keys $_pubkey_id",
-      path    => "/usr/bin:/usr/sbin:/bin",
-      unless  => "gpg --list-key $_pubkey_id"
-    }
+    @duplicity::gpg{ $_pubkey_id: }
   }
 }
