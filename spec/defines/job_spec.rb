@@ -277,13 +277,6 @@ describe 'duplicity::job' do
       :params => {
         :ensure    => 'present',
         :spoolfile => "/path/to/some/spoolfile",
-      },
-      :expected_error_pattern => /directory parameter has to be passed if ensure != absent/,
-    },
-    {
-      :params => {
-        :ensure    => 'present',
-        :spoolfile => "/path/to/some/spoolfile",
         :directory => '/path/to/backup',
       },
       :expected_error_pattern => /You need to define a container\/bucket name!/,
