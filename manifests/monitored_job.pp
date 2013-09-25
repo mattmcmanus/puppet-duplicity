@@ -47,11 +47,11 @@ define duplicity::monitored_job(
   }
 
   periodicnoise::monitored_cron { $name :
-    ensure => $ensure,
-    command => $spoolfile,
-    user => 'root',
-    minute => $_minute,
-    hour => $_hour,
+    ensure            => $ensure,
+    command           => $spoolfile,
+    user              => 'root',
+    minute            => $_minute,
+    hour              => $_hour,
     execution_timeout => $execution_timeout,
   }
 

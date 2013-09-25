@@ -13,7 +13,7 @@ define duplicity::job(
   $remove_older_than = undef,
   $pre_command = undef,
   $default_exit_code = undef,
-	$spoolfile,
+  $spoolfile,
 ) {
 
   include duplicity::params
@@ -66,12 +66,12 @@ define duplicity::job(
 
   $_pre_command = $pre_command ? {
     undef => '',
-    default => "$pre_command && "
+    default => "${pre_command} && "
   }
 
   $_encryption = $pubkey_id ? {
     undef => '--no-encryption',
-    default => "--encrypt-key $pubkey_id"
+    default => "--encrypt-key ${pubkey_id}"
   }
 
   $_remove_older_than = $remove_older_than ? {
@@ -116,13 +116,13 @@ define duplicity::job(
   }
 
   $_target_url = $_cloud ? {
-    'cf' => "'cf+http://$_bucket'",
-    's3' => "'s3+http://$_bucket/$_folder/$name/'"
+    'cf' => "'cf+http://${_bucket}'",
+    's3' => "'s3+http://${_bucket}/${_folder}/${name}/'"
   }
 
   $_remove_older_than_command = $_remove_older_than ? {
     undef => '',
-    default => " && duplicity remove-older-than $_remove_older_than --s3-use-new-style $_encryption --force $_target_url"
+    default => " && duplicity remove-older-than ${_remove_older_than} --s3-use-new-style ${_encryption} --force ${_target_url}"
   }
 
   file { $spoolfile:
