@@ -17,8 +17,8 @@ define duplicity(
   include duplicity::params
   include duplicity::packages
 
-	$escapedname = regsubst("${name}.sh", '[/]', '', 'G')
-	$spoolfile = "${duplicity::params::job_spool}/${escapedname}"
+  $escapedname = regsubst("${name}.sh", '[/]', '', 'G')
+  $spoolfile = "${duplicity::params::job_spool}/${escapedname}"
 
   duplicity::job { $name :
     ensure => $ensure,
