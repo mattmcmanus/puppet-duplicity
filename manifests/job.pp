@@ -1,6 +1,5 @@
 define duplicity::job(
   $ensure = 'present',
-  $spoolfile,
   $directory = $name,
   $bucket = undef,
   $dest_id = undef,
@@ -13,56 +12,12 @@ define duplicity::job(
   $full_if_older_than = undef,
   $remove_older_than = undef,
   $pre_command = undef,
-  $default_exit_code = undef
+  $default_exit_code = undef,
+	$spoolfile,
 ) {
 
   include duplicity::params
   include duplicity::packages
-
-  $_bucket = $bucket ? {
-    undef => $duplicity::params::bucket,
-    default => $bucket
-  }
-
-  $_dest_id = $dest_id ? {
-    undef => $duplicity::params::dest_id,
-    default => $dest_id
-  }
-
-  $_dest_key = $dest_key ? {
-    undef => $duplicity::params::dest_key,
-    default => $dest_key
-  }
-
-  $_folder = $folder ? {
-    undef => $duplicity::params::folder,
-    default => $folder
-  }
-
-  $_cloud = $cloud ? {
-    undef => $duplicity::params::cloud,
-    default => $cloud
-  }
-
-  $_pubkey_id = $pubkey_id ? {
-    undef => $duplicity::params::pubkey_id,
-    default => $pubkey_id
-  }
-
-  $_hour = $hour ? {
-    undef => $duplicity::params::hour,
-    default => $hour
-  }
-
-  $_minute = $minute ? {
-    undef => $duplicity::params::minute,
-    default => $minute
-  }
-
-  $_full_if_older_than = $full_if_older_than ? {
-    undef => $duplicity::params::full_if_older_than,
-    default => $full_if_older_than
-  }
 
   $_pre_command = $pre_command ? {
     undef => '',
@@ -79,7 +34,7 @@ define duplicity::job(
     default => $remove_older_than,
   }
 
-  if !($_cloud in [ 's3', 'cf' ]) {
+  if !($cloud in [ 's3', 'cf' ]) {
     fail('$cloud required and at this time supports s3 for amazon s3 and cf for Rackspace cloud files')
   }
 
@@ -90,12 +45,12 @@ define duplicity::job(
         fail('directory parameter has to be passed if ensure != absent')
       }
 
-      if !$_bucket {
+      if !$bucket {
         fail('You need to define a container/bucket name!')
       }
 
-      if (!$_dest_id or !$_dest_key) {
-        fail("You need to set all of your key variables: dest_id, dest_key")
+      if (!$dest_id or !$dest_key) {
+        fail('You need to set all of your key variables: dest_id, dest_key')
       }
 
     }
@@ -107,29 +62,29 @@ define duplicity::job(
     }
   }
 
-  $_cfhash = { 'CLOUDFILES_USERNAME' => $_dest_id, 'CLOUDFILES_APIKEY'     => $_dest_key,}
-  $_awshash = { 'AWS_ACCESS_KEY_ID'  => $_dest_id, 'AWS_SECRET_ACCESS_KEY' => $_dest_key,}
+  $_cfhash = { 'CLOUDFILES_USERNAME' => $dest_id, 'CLOUDFILES_APIKEY'     => $dest_key,}
+  $_awshash = { 'AWS_ACCESS_KEY_ID'  => $dest_id, 'AWS_SECRET_ACCESS_KEY' => $dest_key,}
 
-  $_environment = $_cloud ? {
+  $_environment = $cloud ? {
     'cf' => $_cfhash,
     's3' => $_awshash,
   }
 
-  $_target_url = $_cloud ? {
-    'cf' => "'cf+http://$_bucket'",
-    's3' => "'s3+http://$_bucket/$_folder/$name/'"
+  $_target_url = $cloud ? {
+    'cf' => "'cf+http://${bucket}'",
+    's3' => "'s3+http://${bucket}/${folder}/${name}/'"
   }
 
-  $_remove_older_than_command = $_remove_older_than ? {
+  $_remove_older_than_command = $remove_older_than ? {
     undef => '',
-    default => " && duplicity remove-older-than $_remove_older_than --s3-use-new-style $_encryption --force $_target_url"
+    default => " && duplicity remove-older-than ${remove_older_than} --s3-use-new-style ${_encryption} --force ${_target_url}"
   }
 
   file { $spoolfile:
     ensure  => $ensure,
-    content => template("duplicity/file-backup.sh.erb"),
+    content => template('duplicity/file-backup.sh.erb'),
     owner   => 'root',
-    mode    => 0700,
+    mode    => '0700',
   }
 
   if $_pubkey_id {
