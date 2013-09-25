@@ -1,16 +1,18 @@
 define duplicity::job(
   $ensure = 'present',
   $spoolfile,
-  $directory = undef,
-  $bucket = undef,
-  $dest_id = undef,
-  $dest_key = undef,
-  $folder = undef,
-  $cloud = undef,
-  $pubkey_id = undef,
-  $full_if_older_than = undef,
+  $directory = $name,
+  $bucket = $duplicity::params::bucket,
+  $dest_id = $duplicity::params::dest_id,
+  $dest_key = $duplicity::params::dest_key,
+  $folder = $duplicity::params::folder,
+  $cloud = $duplicity::params::cloud,
+  $pubkey_id = $duplicity::params::pubkey_id,
+  $hour = $duplicity::params::hour,
+  $minute = $duplicity::params::minute,
+  $full_if_older_than = $duplicity::params::full_if_older_than,
+  $remove_older_than = $duplicity::params::remove_older_than,
   $pre_command = undef,
-  $remove_older_than = undef,
   $default_exit_code = undef
 ) {
 
@@ -67,9 +69,9 @@ define duplicity::job(
     default => "$pre_command && "
   }
 
-  $_encryption = $_pubkey_id ? {
+  $_encryption = $pubkey_id ? {
     undef => '--no-encryption',
-    default => "--encrypt-key $_pubkey_id"
+    default => "--encrypt-key $pubkey_id"
   }
 
   $_remove_older_than = $remove_older_than ? {
