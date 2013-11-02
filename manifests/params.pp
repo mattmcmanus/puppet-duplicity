@@ -1,4 +1,5 @@
 class duplicity::params(
+  $target                = undef,
   $bucket                = undef,
   $dest_id               = undef,
   $dest_key              = undef,

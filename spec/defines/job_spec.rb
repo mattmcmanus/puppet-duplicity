@@ -233,4 +233,44 @@ describe 'duplicity::job' do
     end
 
   end
+
+  context 'cloud and target are incompatible' do
+
+    let(:params) {
+      {
+        :target       => 'ssh://someserver//some/dir',
+        :bucket       => 'somebucket',
+        :directory    => '/root/mysqldump',
+        :dest_id      => 'some_id',
+        :dest_key     => 'some_key',
+        :spoolfile => spoolfile,
+      }
+    }
+
+    it 'should fail with an error' do
+      expect {
+        should contain_file(spoolfile)
+      }.to raise_error(Puppet::Error)
+    end
+  end
+
+  context 'ssh target' do
+
+    let(:params) {
+      {
+        :target       => 'ssh://someserver//some/dir',
+        :cloud        => false,
+        :bucket       => false,
+        :directory    => '/root/mysqldump',
+        :dest_id      => 'some_id',
+        :dest_key     => 'some_key',
+        :spoolfile => spoolfile,
+      }
+    }
+
+    it 'should contain target url in spoolfile' do
+      should contain_file(spoolfile) \
+      .with_content(/ssh:\/\/someserver\/\/some\/dir/)
+    end
+  end
 end
