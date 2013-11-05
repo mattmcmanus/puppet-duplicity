@@ -8,6 +8,7 @@ define duplicity::job(
   $dest_key = undef,
   $folder = undef,
   $cloud = undef,
+  $ssh_id = undef,
   $pubkey_id = undef,
   $full_if_older_than = undef,
   $pre_command = undef,
@@ -57,6 +58,11 @@ define duplicity::job(
     default => $dest_key
   }
 
+  $rssh_id = $ssh_id ? {
+    undef => $duplicity::params::ssh_id,
+    default => $ssh_id
+  }
+
   $rpubkey_id = $pubkey_id ? {
     undef => $duplicity::params::pubkey_id,
     default => $pubkey_id
@@ -85,6 +91,11 @@ define duplicity::job(
   $rarchive_dir = $archive_dir ? {
     false  => $duplicity::params::archive_dir,
     default => $archive_dir,
+  }
+
+  $rssh_options = $rssh_id ? {
+    undef => ' ',
+    default => " --ssh-options -oIdentityFile='$rssh_id' "
   }
 
   # convert the old cloud, bucket and target parameters into the new target parameter
@@ -131,7 +142,7 @@ define duplicity::job(
 
   $rremove_older_than_command = $rremove_older_than ? {
     undef => '',
-    default => " && duplicity remove-older-than $rremove_older_than --s3-use-new-style $rencryption --force $rurl"
+    default => " && duplicity remove-older-than $rremove_older_than --s3-use-new-style ${rencryption}${rssh_options}--force $rurl"
   }
 
   file { $spoolfile:
