@@ -30,6 +30,24 @@ describe 'duplicity::job' do
       .with_mode('0700')
   end
 
+  context "multiple directories" do
+    let(:params) {
+      {
+        :bucket    => 'somebucket',
+        :directory => ['/etc/', '/var/'],
+        :dest_id   => 'some_id',
+        :dest_key  => 'some_key',
+        :cloud     => 'cf',
+        :spoolfile => spoolfile,
+      }
+    }
+
+    it "adds a spoolfile which contains the backup directories" do
+      should contain_file(spoolfile) \
+        .with_content(/duplicity .* --include '\/etc\/' --include '\/var\/' /)
+    end
+  end
+
   context "cloud files environment" do
 
     let(:params) {
