@@ -78,11 +78,6 @@ define duplicity::job(
     default => "$pre_command && "
   }
 
-  $rencryption = $rpubkey_id ? {
-    undef => '--no-encryption',
-    default => "--encrypt-key $rpubkey_id"
-  }
-
   $rremove_older_than = $remove_older_than ? {
     undef   => $duplicity::params::remove_older_than,
     default => $remove_older_than,
@@ -140,6 +135,24 @@ define duplicity::job(
     default => [],
   }
 
+  if ! $rpubkey_id {
+    $rencryption = '--no-encryption'
+  } else {
+    if is_array($rpubkey_id) {
+      $rpubkeys = $rpubkey_id
+    } else {
+      $rpubkeys = [$rpubkey_id]
+    }
+    $rencryption = inline_template('<% @rpubkeys.each do |key| %>--encrypt-key \'<%= key %>\' <% end %>')
+    $rkeystr = join([ "'", join($rpubkeys, "' '"), "'" ], '')
+    $rnumkeys = size($rpubkeys)
+    exec { "duplicity-pgp-$title":
+      command => "gpg --keyserver subkeys.pgp.net --recv-keys $rkeystr",
+      path    => "/usr/bin:/usr/sbin:/bin",
+      unless  => "test $(gpg --with-colons --list-keys $rkeystr | grep '^pub:' | wc -l) -eq $rnumkeys"
+    }
+  }
+
   $rremove_older_than_command = $rremove_older_than ? {
     undef => '',
     default => " && duplicity remove-older-than $rremove_older_than --s3-use-new-style ${rencryption}${rssh_options}--force $rurl"
@@ -150,13 +163,5 @@ define duplicity::job(
     content => template("duplicity/file-backup.sh.erb"),
     owner   => 'root',
     mode    => 0700,
-  }
-
-  if $rpubkey_id {
-    exec { 'duplicity-pgp':
-      command => "gpg --keyserver subkeys.pgp.net --recv-keys $rpubkey_id",
-      path    => "/usr/bin:/usr/sbin:/bin",
-      unless  => "gpg --list-key $rpubkey_id"
-    }
   }
 }

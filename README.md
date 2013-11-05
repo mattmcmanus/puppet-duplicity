@@ -80,6 +80,10 @@ private key. This ensures no secret credentials fly around on the machines. Incr
 work as long as the metadata cache on the node is up to date. Duplicity will force a full backup
 otherwise because it cannot decrypt anything it downloads from the bucket.
 
+It's possible to add multiple encryption keys with the pubkey_id parameter as
+an array. Despite the parameter name keys can be specified in all ways recognized
+by gpg, not only as keyids.
+
 Check https://answers.launchpad.net/duplicity/+question/107216 for more information.
 
 Backup over SSH
