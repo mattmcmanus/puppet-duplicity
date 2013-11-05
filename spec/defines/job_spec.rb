@@ -132,14 +132,42 @@ describe 'duplicity::job' do
 
     it "should use pubkey encryption if keyid is provided" do
       should contain_file(spoolfile) \
-        .with_content(/--encrypt-key #{some_pubkey_id}/)
+        .with_content(/--encrypt-key '#{some_pubkey_id}'/)
     end
 
     it "should download and import the specified pubkey" do
-      should contain_exec('duplicity-pgp') \
-        .with_command("gpg --keyserver subkeys.pgp.net --recv-keys #{some_pubkey_id}") \
+      should contain_exec("duplicity-pgp-#{title}") \
+        .with_command("gpg --keyserver subkeys.pgp.net --recv-keys '#{some_pubkey_id}'") \
         .with_path("/usr/bin:/usr/sbin:/bin") \
-        .with_unless("gpg --list-key #{some_pubkey_id}")
+        .with_unless(/gpg --list-keys '#{some_pubkey_id}'/)
+    end
+  end
+
+  context 'duplicity with multiple pubkeys for encryption' do
+    first_key       = '15ABDA79'
+    second_key      = 'DEADBEEF'
+
+    let(:params) {
+      {
+        :bucket       => 'somebucket',
+        :directory    => '/etc/',
+        :dest_id  => 'some_id',
+        :dest_key => 'some_key',
+        :pubkey_id   => [first_key, second_key],
+        :spoolfile => spoolfile,
+      }
+    }
+
+    it "should use pubkey encryption for both keys" do
+      should contain_file(spoolfile) \
+        .with_content(/--encrypt-key '#{first_key}' --encrypt-key '#{second_key}'/)
+    end
+
+    it "should download and import the specified pubkey" do
+      should contain_exec("duplicity-pgp-#{title}") \
+        .with_command("gpg --keyserver subkeys.pgp.net --recv-keys '#{first_key}' '#{second_key}'") \
+        .with_path("/usr/bin:/usr/sbin:/bin") \
+        .with_unless(/gpg --list-keys '#{first_key}' '#{second_key}'/)
     end
   end
 

@@ -66,11 +66,6 @@ define duplicity::job(
     default => "$pre_command && "
   }
 
-  $_encryption = $_pubkey_id ? {
-    undef => '--no-encryption',
-    default => "--encrypt-key $_pubkey_id"
-  }
-
   $_remove_older_than = $remove_older_than ? {
     undef   => $duplicity::params::remove_older_than,
     default => $remove_older_than,
@@ -112,6 +107,24 @@ define duplicity::job(
     'file' => "'file://$_bucket'"
   }
 
+  if ! $_pubkey_id {
+    $_encryption = '--no-encryption'
+  } else {
+    if is_array($_pubkey_id) {
+      $_pubkeys = $_pubkey_id
+    } else {
+      $_pubkeys = [$_pubkey_id]
+    }
+    $_encryption = inline_template('<% _pubkeys.each do |key| %>--encrypt-key \'<%= key %>\' <% end %>')
+    $_keystr = join([ "'", join($_pubkeys, "' '"), "'" ], '')
+    $_numkeys = size($_pubkeys)
+    exec { "duplicity-pgp-$title":
+      command => "gpg --keyserver subkeys.pgp.net --recv-keys $_keystr",
+      path    => "/usr/bin:/usr/sbin:/bin",
+      unless  => "test $(gpg --with-colons --list-keys $_keystr | grep '^pub:' | wc -l) -eq $_numkeys"
+    }
+  }
+
   $_remove_older_than_command = $_remove_older_than ? {
     undef => '',
     default => " && duplicity remove-older-than $_remove_older_than --s3-use-new-style $_encryption --force $_target_url"
@@ -124,11 +137,4 @@ define duplicity::job(
     mode    => 0700,
   }
 
-  if $_pubkey_id {
-    exec { 'duplicity-pgp':
-      command => "gpg --keyserver subkeys.pgp.net --recv-keys $_pubkey_id",
-      path    => "/usr/bin:/usr/sbin:/bin",
-      unless  => "gpg --list-key $_pubkey_id"
-    }
-  }
 }
