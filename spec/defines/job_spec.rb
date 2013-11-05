@@ -258,19 +258,21 @@ describe 'duplicity::job' do
 
     let(:params) {
       {
-        :target       => 'ssh://someserver//some/dir',
-        :cloud        => false,
-        :bucket       => false,
-        :directory    => '/root/mysqldump',
-        :dest_id      => 'some_id',
-        :dest_key     => 'some_key',
+        :target            => 'ssh://someserver//some/dir',
+        :ssh_id            => '/etc/duplicity/id_rsa',
+        :cloud             => false,
+        :bucket            => false,
+        :directory         => '/root/mysqldump',
+        :remove_older_than => '1Y',
         :spoolfile => spoolfile,
       }
     }
 
-    it 'should contain target url in spoolfile' do
+    it 'should contain target url and ssh-id in spoolfile' do
       should contain_file(spoolfile) \
       .with_content(/ssh:\/\/someserver\/\/some\/dir/)
+      .with_content(/^duplicity .* --ssh-options -oIdentityFile=\'\/etc\/duplicity\/id_rsa\'/)
+      .with_content(/&& duplicity remove-older-than .* --ssh-options -oIdentityFile=\'\/etc\/duplicity\/id_rsa\'/)
     end
   end
 end
