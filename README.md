@@ -94,6 +94,12 @@ authentication. The ssh_id parameter takes the path to the SSH private key. The 
 generated separately without a password and the public part has to be added to the
 authorized_keys file on the backup server.
 
+Backup multiple directories
+---------------------------
+
+Multiple directories with otherwise the same settings can be backed up in a single job.
+Just give the "diretory" parameter an array of paths.
+
 Install duplicity without a backup job
 --------------------------------------
 
