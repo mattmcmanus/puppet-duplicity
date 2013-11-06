@@ -161,7 +161,7 @@ define duplicity::job(
 
   $rremove_older_than_command = $rremove_older_than ? {
     undef => '',
-    default => " && duplicity remove-older-than $rremove_older_than --s3-use-new-style ${rencryption}${rssh_options}--force $rurl"
+    default => " && duplicity remove-older-than $rremove_older_than --verbosity error --s3-use-new-style ${rencryption}${rssh_options}--force $rurl"
   }
 
   file { $spoolfile:
