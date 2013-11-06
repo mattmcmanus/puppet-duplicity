@@ -139,7 +139,7 @@ describe 'duplicity::job' do
       should contain_exec("duplicity-pgp-#{title}") \
         .with_command("gpg --keyserver subkeys.pgp.net --recv-keys '#{some_pubkey_id}'") \
         .with_path("/usr/bin:/usr/sbin:/bin") \
-        .with_unless(/gpg --list-keys '#{some_pubkey_id}'/)
+        .with_unless(/gpg .* --list-keys '#{some_pubkey_id}'/)
     end
   end
 
@@ -167,7 +167,7 @@ describe 'duplicity::job' do
       should contain_exec("duplicity-pgp-#{title}") \
         .with_command("gpg --keyserver subkeys.pgp.net --recv-keys '#{first_key}' '#{second_key}'") \
         .with_path("/usr/bin:/usr/sbin:/bin") \
-        .with_unless(/gpg --list-keys '#{first_key}' '#{second_key}'/)
+        .with_unless(/gpg .* --list-keys '#{first_key}' '#{second_key}'/)
     end
   end
 
