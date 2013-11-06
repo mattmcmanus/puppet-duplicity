@@ -143,7 +143,7 @@ define duplicity::job(
     } else {
       $rpubkeys = [$rpubkey_id]
     }
-    $rencryption = inline_template('<% @rpubkeys.each do |key| %>--encrypt-key \'<%= key %>\' <% end %>')
+    $rencryption = inline_template('--gpg-options \'--trust-model=always\' <% @rpubkeys.each do |key| %>--encrypt-key \'<%= key %>\' <% end %>')
     $rkeystr = join([ "'", join($rpubkeys, "' '"), "'" ], '')
     $rnumkeys = size($rpubkeys)
     exec { "duplicity-pgp-$title":

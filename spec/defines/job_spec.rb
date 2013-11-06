@@ -132,7 +132,7 @@ describe 'duplicity::job' do
 
     it "should use pubkey encryption if keyid is provided" do
       should contain_file(spoolfile) \
-        .with_content(/--encrypt-key '#{some_pubkey_id}'/)
+        .with_content(/--gpg-options '--trust-model=always' --encrypt-key '#{some_pubkey_id}'/)
     end
 
     it "should download and import the specified pubkey" do
@@ -160,7 +160,7 @@ describe 'duplicity::job' do
 
     it "should use pubkey encryption for both keys" do
       should contain_file(spoolfile) \
-        .with_content(/--encrypt-key '#{first_key}' --encrypt-key '#{second_key}'/)
+        .with_content(/--gpg-options '--trust-model=always' --encrypt-key '#{first_key}' --encrypt-key '#{second_key}'/)
     end
 
     it "should download and import the specified pubkey" do
