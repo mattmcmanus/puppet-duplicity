@@ -110,7 +110,7 @@ describe 'duplicity::job' do
 
     it "should be able to handle a specified remove-older-than time" do
       should contain_file(spoolfile) \
-        .with_content(/remove-older-than 7D.* --no-encryption --force.*/)
+        .with_content(/^duplicity .* && duplicity remove-older-than 7D.* --no-encryption --force.*/)
     end
   end
 
