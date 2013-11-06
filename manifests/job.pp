@@ -115,7 +115,7 @@ define duplicity::job(
     } else {
       $_pubkeys = [$_pubkey_id]
     }
-    $_encryption = inline_template('<% _pubkeys.each do |key| %>--encrypt-key \'<%= key %>\' <% end %>')
+    $_encryption = inline_template('--gpg-options \'--trust-model=always\' <% _pubkeys.each do |key| %>--encrypt-key \'<%= key %>\' <% end %>')
     $_keystr = join([ "'", join($_pubkeys, "' '"), "'" ], '')
     $_numkeys = size($_pubkeys)
     exec { "duplicity-pgp-$title":
