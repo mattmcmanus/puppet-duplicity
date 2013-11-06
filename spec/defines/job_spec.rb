@@ -47,7 +47,7 @@ describe 'duplicity::job' do
       should contain_file(spoolfile) \
         .with_content(/^CLOUDFILES_USERNAME='some_id'$/)\
         .with_content(/^CLOUDFILES_APIKEY='some_key'$/)\
-        .with_content(/^duplicity --full-if-older-than 30D --s3-use-new-style --no-encryption --include '\/etc\/' --exclude '\*\*' \/ 'cf\+http:\/\/somebucket'$/)
+        .with_content(/^duplicity --verbosity warning --no-print-statistics --full-if-older-than 30D --s3-use-new-style --no-encryption --include '\/etc\/' --exclude '\*\*' \/ 'cf\+http:\/\/somebucket'$/)
     end
   end
 
@@ -67,7 +67,7 @@ describe 'duplicity::job' do
       should contain_file(spoolfile) \
         .with_content(/^AWS_ACCESS_KEY_ID='some_id'$/)\
         .with_content(/^AWS_SECRET_ACCESS_KEY='some_key'$/)\
-        .with_content(/^duplicity --full-if-older-than 30D --s3-use-new-style --no-encryption --include '\/etc\/' --exclude '\*\*' \/ 's3\+http:\/\/somebucket\/#{fqdn}\/some_backup_name\/'$/)
+        .with_content(/^duplicity --verbosity warning --no-print-statistics --full-if-older-than 30D --s3-use-new-style --no-encryption --include '\/etc\/' --exclude '\*\*' \/ 's3\+http:\/\/somebucket\/#{fqdn}\/some_backup_name\/'$/)
     end
 
 
