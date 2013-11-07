@@ -2,11 +2,13 @@ define duplicity::job(
   $ensure = 'present',
   $spoolfile,
   $directory = undef,
+  $target = undef,
   $bucket = undef,
   $dest_id = undef,
   $dest_key = undef,
   $folder = undef,
   $cloud = undef,
+  $ssh_id = undef,
   $pubkey_id = undef,
   $full_if_older_than = undef,
   $pre_command = undef,
@@ -16,9 +18,31 @@ define duplicity::job(
   include duplicity::params
   include duplicity::packages
 
-  $_bucket = $bucket ? {
-    undef => $duplicity::params::bucket,
-    default => $bucket
+  if ($target and ($cloud or $bucket or $folder)) {
+    fail('The target parameter and the combination of the cloud, bucket and folder parameters are mutually exclusive. Please use the target parameter, the others are deprecated.')
+  }
+
+  $_target = $target ? {
+    undef => $duplicity::params::target,
+    default => $target
+  }
+
+  if (!$_target) {
+    # target takes precedence over cloud parameters
+    $_bucket = $bucket ? {
+      undef => $duplicity::params::bucket,
+      default => $bucket
+    }
+
+    $_folder = $folder ? {
+      undef => $duplicity::params::folder,
+      default => $folder
+    }
+
+    $_cloud = $cloud ? {
+      undef => $duplicity::params::cloud,
+      default => $cloud
+    }
   }
 
   $_dest_id = $dest_id ? {
@@ -31,14 +55,9 @@ define duplicity::job(
     default => $dest_key
   }
 
-  $_folder = $folder ? {
-    undef => $duplicity::params::folder,
-    default => $folder
-  }
-
-  $_cloud = $cloud ? {
-    undef => $duplicity::params::cloud,
-    default => $cloud
+  $_ssh_id = $ssh_id ? {
+    undef => $duplicity::params::ssh_id,
+    default => $ssh_id
   }
 
   $_pubkey_id = $pubkey_id ? {
@@ -76,8 +95,23 @@ define duplicity::job(
     default => $remove_older_than,
   }
 
-  if !($_cloud in [ 's3', 'cf', 'file' ]) {
-    fail('$cloud required and at this time supports s3 for amazon s3 and cf for Rackspace cloud files')
+  $_ssh_options = $_ssh_id ? {
+    undef => ' ',
+    default => " --ssh-options -oIdentityFile='$_ssh_id' "
+  }
+
+  # convert the old cloud, bucket and target parameters into the new target parameter
+  if (! $_target) {
+
+    warning('The cloud, bucket and folder parameters are deprecated. Please change your manifests to use the more general target parameter.')
+
+    $_url = $_cloud ? {
+      'cf' => "cf+http://$_bucket",
+      's3' => "s3+http://$_bucket/$_folder/$name/",
+      'file' => "file://$_bucket"
+    }
+  } else {
+    $_url = $_target
   }
 
   case $ensure {
@@ -87,8 +121,8 @@ define duplicity::job(
         fail('directory parameter has to be passed if ensure != absent')
       }
 
-      if !$_bucket {
-        fail('You need to define a container/bucket name!')
+      if !$_url {
+        fail('You need to define a target URL!')
       }
 
     }
@@ -100,21 +134,17 @@ define duplicity::job(
     }
   }
 
-  $_environment = $_cloud ? {
-    'cf' => ["CLOUDFILES_USERNAME='$_dest_id'", "CLOUDFILES_APIKEY='$_dest_key'"],
-    's3' => ["AWS_ACCESS_KEY_ID='$_dest_id'", "AWS_SECRET_ACCESS_KEY='$_dest_key'"],
-    'file' => [],
-  }
+  $_scheme = regsubst($_url, '^([^:]*):.*$', '\1')
 
-  $_target_url = $_cloud ? {
-    'cf' => "'cf+http://$_bucket'",
-    's3' => "'s3+http://$_bucket/$_folder/$name/'",
-    'file' => "'file://$_bucket'"
+  $_environment = $_scheme ? {
+    'cf+http' => ["CLOUDFILES_USERNAME='$_dest_id'", "CLOUDFILES_APIKEY='$_dest_key'"],
+    /s3|s3\+http/ => ["AWS_ACCESS_KEY_ID='$_dest_id'", "AWS_SECRET_ACCESS_KEY='$_dest_key'"],
+    default => [],
   }
 
   $_remove_older_than_command = $_remove_older_than ? {
     undef => '',
-    default => " && duplicity remove-older-than $_remove_older_than --s3-use-new-style $_encryption --force $_target_url"
+    default => " && duplicity remove-older-than $_remove_older_than --s3-use-new-style ${_encryption}${_ssh_options}--force $_url"
   }
 
   file { $spoolfile:

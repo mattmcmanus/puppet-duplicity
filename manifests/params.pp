@@ -1,8 +1,10 @@
 class duplicity::params(
+  $target                = undef,
   $bucket                = undef,
   $dest_id               = undef,
   $dest_key              = undef,
   $cloud                 = $duplicity::defaults::cloud,
+  $ssh_id                = undef,
   $pubkey_id             = undef,
   $hour                  = $duplicity::defaults::hour,
   $minute                = $duplicity::defaults::minute,

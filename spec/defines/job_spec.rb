@@ -110,7 +110,7 @@ describe 'duplicity::job' do
 
     it "should be able to handle a specified remove-older-than time" do
       should contain_file(spoolfile) \
-        .with_content(/remove-older-than 7D.* --no-encryption --force.*/)
+        .with_content(/^duplicity .* && duplicity remove-older-than 7D.* --no-encryption --force.*/)
     end
   end
 
@@ -232,5 +232,47 @@ describe 'duplicity::job' do
         .with_ensure('absent')
     end
 
+  end
+
+  context 'cloud and target are incompatible' do
+
+    let(:params) {
+      {
+        :target       => 'ssh://someserver//some/dir',
+        :bucket       => 'somebucket',
+        :directory    => '/root/mysqldump',
+        :dest_id      => 'some_id',
+        :dest_key     => 'some_key',
+        :spoolfile => spoolfile,
+      }
+    }
+
+    it 'should fail with an error' do
+      expect {
+        should contain_file(spoolfile)
+      }.to raise_error(Puppet::Error)
+    end
+  end
+
+  context 'ssh target' do
+
+    let(:params) {
+      {
+        :target            => 'ssh://someserver//some/dir',
+        :ssh_id            => '/etc/duplicity/id_rsa',
+        :cloud             => false,
+        :bucket            => false,
+        :directory         => '/root/mysqldump',
+        :remove_older_than => '1Y',
+        :spoolfile => spoolfile,
+      }
+    }
+
+    it 'should contain target url and ssh-id in spoolfile' do
+      should contain_file(spoolfile) \
+      .with_content(/ssh:\/\/someserver\/\/some\/dir/)
+      .with_content(/^duplicity .* --ssh-options -oIdentityFile=\'\/etc\/duplicity\/id_rsa\'/)
+      .with_content(/&& duplicity remove-older-than .* --ssh-options -oIdentityFile=\'\/etc\/duplicity\/id_rsa\'/)
+    end
   end
 end
