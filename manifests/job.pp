@@ -106,6 +106,12 @@ define duplicity::job(
     'file' => [],
   }
 
+  if is_array($directory) {
+    $_directories = $directory
+  } else {
+    $_directories = [$directory]
+  }
+
   $_target_url = $_cloud ? {
     'cf' => "'cf+http://$_bucket'",
     's3' => "'s3+http://$_bucket/$_folder/$name/'",
