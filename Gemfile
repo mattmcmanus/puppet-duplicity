@@ -6,7 +6,7 @@ else
     puppetversion = ['~> 2.7']
 end
 
-gem 'rspec-puppet'
+gem 'rspec-puppet', '0.1.6'
 gem 'puppet-lint'
 gem 'puppet', puppetversion
 gem 'puppetlabs_spec_helper'
