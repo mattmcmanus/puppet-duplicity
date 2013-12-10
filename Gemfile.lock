@@ -30,7 +30,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  puppet (= 2.7.23)
+  puppet (~> 2.7)
   puppet-lint
   puppetlabs_spec_helper
   rspec-puppet (= 0.1.6)
