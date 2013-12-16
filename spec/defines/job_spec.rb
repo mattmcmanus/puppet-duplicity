@@ -30,6 +30,11 @@ describe 'duplicity::job' do
       .with_mode('0700')
   end
 
+  it "should exit with a non-zero exit code in case of errors during the duplicity job / pre-command so that e. g. cron monitors are alarmed if something went wrong" do
+    should contain_file(spoolfile) \
+      .with_content(/^set -e$/)\
+  end
+
   context "cloud files environment" do
 
     let(:params) {
@@ -213,7 +218,7 @@ describe 'duplicity::job' do
 
     it "should prepend pre_command to cronjob" do
       should contain_file(spoolfile) \
-        .with_content(/^mysqldump database && /)
+        .with_content(/\nmysqldump database\n.*duplicity/m)
     end
   end
 

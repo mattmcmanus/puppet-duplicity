@@ -64,11 +64,6 @@ define duplicity::job(
     default => $full_if_older_than
   }
 
-  $_pre_command = $pre_command ? {
-    undef => '',
-    default => "${pre_command} && "
-  }
-
   $_encryption = $_pubkey_id ? {
     undef => '--no-encryption',
     default => "--encrypt-key ${_pubkey_id}"
