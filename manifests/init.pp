@@ -12,6 +12,7 @@ define duplicity(
   $full_if_older_than = undef,
   $pre_command = undef,
   $remove_older_than = undef,
+  $rrs               = false,
 ) {
 
   include duplicity::params
@@ -32,6 +33,7 @@ define duplicity(
     full_if_older_than => $full_if_older_than,
     pre_command => $pre_command,
     remove_older_than => $remove_older_than,
+    rrs               => $rrs,
   }
 
   $rhour = $hour ? {

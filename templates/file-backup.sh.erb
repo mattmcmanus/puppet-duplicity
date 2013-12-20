@@ -6,5 +6,5 @@ set -o pipefail
 export <%= var %>
 <% end-%>
 <%= @rpre_command %>
-duplicity <% if @rarchive_dir %>--archive-dir <%= @rarchive_dir %> <% end %>--full-if-older-than <%= @rfull_if_older_than -%> --s3-use-new-style <%= @rencryption -%> --include '<%= @directory -%>' --exclude '**' / <%= @rtarget_url -%>
+duplicity <% if @rarchive_dir %>--archive-dir <%= @rarchive_dir %> <% end %>--full-if-older-than <%= @rfull_if_older_than -%> --s3-use-new-style <% if @rrs %>--s3-use-rrs <% end %><%= @rencryption -%> --include '<%= @directory -%>' --exclude '**' / <%= @rtarget_url -%>
 <%= @rremove_older_than_command %>

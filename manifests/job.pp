@@ -11,7 +11,8 @@ define duplicity::job(
   $full_if_older_than = undef,
   $pre_command = undef,
   $remove_older_than = undef,
-  $archive_dir = false
+  $archive_dir = false,
+  $rrs         = false,
 ) {
 
   include duplicity::params
