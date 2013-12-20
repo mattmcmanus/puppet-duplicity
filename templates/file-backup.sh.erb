@@ -3,7 +3,7 @@ set -e
 set -o pipefail
 
 <% @_environment.each do |var|-%>
-<%= var %>
+export <%= var %>
 <% end-%>
 <%= @_pre_command %>
 duplicity --full-if-older-than <%= @_full_if_older_than -%> --s3-use-new-style <%= @_encryption -%> --include '<%= @directory -%>' --exclude '**' / <%= @_target_url -%>
