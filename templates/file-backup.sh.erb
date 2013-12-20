@@ -2,9 +2,9 @@
 set -e
 set -o pipefail
 
-<% @_environment.each do |var|-%>
+<% @renvironment.each do |var|-%>
 export <%= var %>
 <% end-%>
-<%= @_pre_command %>
-duplicity <% if @_archive_dir %>--archive-dir <%= @_archive_dir %> <% end %>--full-if-older-than <%= @_full_if_older_than -%> --s3-use-new-style <%= @_encryption -%> --include '<%= @directory -%>' --exclude '**' / <%= @_target_url -%>
-<%= @_remove_older_than_command %>
+<%= @rpre_command %>
+duplicity <% if @rarchive_dir %>--archive-dir <%= @rarchive_dir %> <% end %>--full-if-older-than <%= @rfull_if_older_than -%> --s3-use-new-style <%= @rencryption -%> --include '<%= @directory -%>' --exclude '**' / <%= @rtarget_url -%>
+<%= @rremove_older_than_command %>

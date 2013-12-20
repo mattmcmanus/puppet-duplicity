@@ -35,12 +35,12 @@ define duplicity::monitored_job(
     remove_older_than => $remove_older_than,
   }
 
-  $_hour = $hour ? {
+  $rhour = $hour ? {
     undef => $duplicity::params::hour,
     default => $hour
   }
 
-  $_minute = $minute ? {
+  $rminute = $minute ? {
     undef => $duplicity::params::minute,
     default => $minute
   }
@@ -49,8 +49,8 @@ define duplicity::monitored_job(
     ensure => $ensure,
     command => $spoolfile,
     user => 'root',
-    minute => $_minute,
-    hour => $_hour,
+    minute => $rminute,
+    hour => $rhour,
     execution_timeout => $execution_timeout,
   }
 

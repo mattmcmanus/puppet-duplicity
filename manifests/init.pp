@@ -34,12 +34,12 @@ define duplicity(
     remove_older_than => $remove_older_than,
   }
 
-  $_hour = $hour ? {
+  $rhour = $hour ? {
     undef => $duplicity::params::hour,
     default => $hour
   }
 
-  $_minute = $minute ? {
+  $rminute = $minute ? {
     undef => $duplicity::params::minute,
     default => $minute
   }
@@ -48,8 +48,8 @@ define duplicity(
     ensure => $ensure,
     command => $spoolfile,
     user => 'root',
-    minute => $_minute,
-    hour => $_hour,
+    minute => $rminute,
+    hour => $rhour,
   }
 
   File[$spoolfile]->Cron[$name]
