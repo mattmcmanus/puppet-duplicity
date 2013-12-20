@@ -11,6 +11,7 @@ define duplicity::job(
   $full_if_older_than = undef,
   $pre_command = undef,
   $remove_older_than = undef,
+  $archive_dir = false
 ) {
 
   include duplicity::params
@@ -74,6 +75,11 @@ define duplicity::job(
   $_remove_older_than = $remove_older_than ? {
     undef   => $duplicity::params::remove_older_than,
     default => $remove_older_than,
+  }
+
+  $_archive_dir = $archive_dir ? {
+    false  => $duplicity::params::archive_dir,
+    default => $archive_dir,
   }
 
   if !($_cloud in [ 's3', 'cf', 'file' ]) {
