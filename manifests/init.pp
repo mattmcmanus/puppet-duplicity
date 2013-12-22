@@ -11,8 +11,9 @@ define duplicity(
   $minute = undef,
   $full_if_older_than = undef,
   $pre_command = undef,
-  $remove_older_than = undef,
-  $rrs               = false,
+  $remove_older_than     = undef,
+  $rrs                   = false,
+  $allow_source_mismatch = false,
 ) {
 
   include duplicity::params
@@ -32,8 +33,9 @@ define duplicity(
     pubkey_id => $pubkey_id,
     full_if_older_than => $full_if_older_than,
     pre_command => $pre_command,
-    remove_older_than => $remove_older_than,
-    rrs               => $rrs,
+    remove_older_than     => $remove_older_than,
+    rrs                   => $rrs,
+    allow_source_mismatch => $allow_source_mismatch,
   }
 
   $rhour = $hour ? {
