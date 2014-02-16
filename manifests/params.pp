@@ -8,7 +8,8 @@ class duplicity::params(
   $minute                = $duplicity::defaults::minute,
   $full_if_older_than    = $duplicity::defaults::full_if_older_than,
   $remove_older_than     = undef,
-  $job_spool = $duplicity::defaults::job_spool
+  $job_spool             = $duplicity::defaults::job_spool,
+  $archive_dir           = undef,
 ) inherits duplicity::defaults {
 
   file { $job_spool :

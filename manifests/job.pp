@@ -11,72 +11,80 @@ define duplicity::job(
   $full_if_older_than = undef,
   $pre_command = undef,
   $remove_older_than = undef,
+  $archive_dir = false,
+  $rrs                   = false,
+  $allow_source_mismatch = false,
 ) {
 
   include duplicity::params
   include duplicity::packages
 
-  $_bucket = $bucket ? {
+  $rbucket = $bucket ? {
     undef => $duplicity::params::bucket,
     default => $bucket
   }
 
-  $_dest_id = $dest_id ? {
+  $rdest_id = $dest_id ? {
     undef => $duplicity::params::dest_id,
     default => $dest_id
   }
 
-  $_dest_key = $dest_key ? {
+  $rdest_key = $dest_key ? {
     undef => $duplicity::params::dest_key,
     default => $dest_key
   }
 
-  $_folder = $folder ? {
+  $rfolder = $folder ? {
     undef => $duplicity::params::folder,
     default => $folder
   }
 
-  $_cloud = $cloud ? {
+  $rcloud = $cloud ? {
     undef => $duplicity::params::cloud,
     default => $cloud
   }
 
-  $_pubkey_id = $pubkey_id ? {
+  $rpubkey_id = $pubkey_id ? {
     undef => $duplicity::params::pubkey_id,
     default => $pubkey_id
   }
 
-  $_hour = $hour ? {
+  $rhour = $hour ? {
     undef => $duplicity::params::hour,
     default => $hour
   }
 
-  $_minute = $minute ? {
+  $rminute = $minute ? {
     undef => $duplicity::params::minute,
     default => $minute
   }
 
-  $_full_if_older_than = $full_if_older_than ? {
+  $rfull_if_older_than = $full_if_older_than ? {
     undef => $duplicity::params::full_if_older_than,
     default => $full_if_older_than
   }
 
-  $_pre_command = $pre_command ? {
+  $rpre_command = $pre_command ? {
     undef => '',
     default => "$pre_command && "
   }
 
-  $_encryption = $_pubkey_id ? {
+  $rencryption = $rpubkey_id ? {
     undef => '--no-encryption',
-    default => "--encrypt-key $_pubkey_id"
+    default => "--encrypt-key $rpubkey_id"
   }
 
-  $_remove_older_than = $remove_older_than ? {
+  $rremove_older_than = $remove_older_than ? {
     undef   => $duplicity::params::remove_older_than,
     default => $remove_older_than,
   }
 
-  if !($_cloud in [ 's3', 'cf', 'file' ]) {
+  $rarchive_dir = $archive_dir ? {
+    false  => $duplicity::params::archive_dir,
+    default => $archive_dir,
+  }
+
+  if !($rcloud in [ 's3', 'cf', 'file' ]) {
     fail('$cloud required and at this time supports s3 for amazon s3 and cf for Rackspace cloud files')
   }
 
@@ -87,7 +95,7 @@ define duplicity::job(
         fail('directory parameter has to be passed if ensure != absent')
       }
 
-      if !$_bucket {
+      if !$rbucket {
         fail('You need to define a container/bucket name!')
       }
 
@@ -100,21 +108,21 @@ define duplicity::job(
     }
   }
 
-  $_environment = $_cloud ? {
-    'cf' => ["CLOUDFILES_USERNAME='$_dest_id'", "CLOUDFILES_APIKEY='$_dest_key'"],
-    's3' => ["AWS_ACCESS_KEY_ID='$_dest_id'", "AWS_SECRET_ACCESS_KEY='$_dest_key'"],
+  $renvironment = $rcloud ? {
+    'cf' => ["CLOUDFILES_USERNAME='$rdest_id'", "CLOUDFILES_APIKEY='$rdest_key'"],
+    's3' => ["AWS_ACCESS_KEY_ID='$rdest_id'", "AWS_SECRET_ACCESS_KEY='$rdest_key'"],
     'file' => [],
   }
 
-  $_target_url = $_cloud ? {
-    'cf' => "'cf+http://$_bucket'",
-    's3' => "'s3+http://$_bucket/$_folder/$name/'",
-    'file' => "'file://$_bucket'"
+  $rtarget_url = $rcloud ? {
+    'cf' => "'cf+http://$rbucket'",
+    's3' => "'s3+http://$rbucket/$rfolder/$name/'",
+    'file' => "'file://$rbucket'"
   }
 
-  $_remove_older_than_command = $_remove_older_than ? {
+  $rremove_older_than_command = $rremove_older_than ? {
     undef => '',
-    default => " && duplicity remove-older-than $_remove_older_than --s3-use-new-style $_encryption --force $_target_url"
+    default => " && duplicity remove-older-than $rremove_older_than --s3-use-new-style $rencryption --force $rtarget_url"
   }
 
   file { $spoolfile:
@@ -124,11 +132,11 @@ define duplicity::job(
     mode    => 0700,
   }
 
-  if $_pubkey_id {
+  if $rpubkey_id {
     exec { 'duplicity-pgp':
-      command => "gpg --keyserver subkeys.pgp.net --recv-keys $_pubkey_id",
+      command => "gpg --keyserver subkeys.pgp.net --recv-keys $rpubkey_id",
       path    => "/usr/bin:/usr/sbin:/bin",
-      unless  => "gpg --list-key $_pubkey_id"
+      unless  => "gpg --list-key $rpubkey_id"
     }
   }
 }
