@@ -141,7 +141,7 @@ describe 'duplicity::job' do
 
     it "should download and import the specified pubkey" do
       should contain_exec("duplicity-pgp-param-#{some_pubkey_id}") \
-        .with_command("gpg --keyserver subkeys.pgp.net --recv-keys #{some_pubkey_id}") \
+        .with_command("gpg --keyserver keyserver.ubuntu.com --recv-keys #{some_pubkey_id}") \
         .with_path("/usr/bin:/usr/sbin:/bin") \
         .with_unless("gpg --list-key #{some_pubkey_id}")
     end

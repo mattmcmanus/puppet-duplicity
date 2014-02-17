@@ -8,7 +8,7 @@ define duplicity::gpg(
 ){
 
   exec { "duplicity-pgp-param-${name}":
-    command => "gpg --keyserver subkeys.pgp.net --recv-keys ${pubkey_id}",
+    command => "gpg --keyserver keyserver.ubuntu.com --recv-keys ${pubkey_id}",
     path    => '/usr/bin:/usr/sbin:/bin',
     unless  => "gpg --list-key ${pubkey_id}"
   }
