@@ -12,7 +12,9 @@ define duplicity::monitored_job(
   $full_if_older_than = undef,
   $pre_command = undef,
   $remove_older_than = undef,
-  $execution_timeout
+  $execution_timeout,
+  $nagios_template = undef,
+  $nagios_freshness_threshold = undef,
 )
 {
   include duplicity::params
@@ -47,12 +49,14 @@ define duplicity::monitored_job(
   }
 
   periodicnoise::monitored_cron { $name :
-    ensure            => $ensure,
-    command           => $spoolfile,
-    user              => 'root',
-    minute            => $_minute,
-    hour              => $_hour,
-    execution_timeout => $execution_timeout,
+    ensure                     => $ensure,
+    command                    => $spoolfile,
+    user                       => 'root',
+    minute                     => $_minute,
+    hour                       => $_hour,
+    execution_timeout          => $execution_timeout,
+    nagios_template            => $nagios_template,
+    nagios_freshness_threshold => $nagios_freshness_threshold,
   }
 
   File[$spoolfile]->Cron[$name]

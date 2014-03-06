@@ -129,4 +129,20 @@ describe 'duplicity::monitored_job' do
     end
   end
 
+  context 'with nagios params set' do
+    let(:params) {
+      super.merge({
+        :nagios_template            => 'some-service-template',
+        :nagios_freshness_threshold => 120
+    })}
+
+    it "should pass the nagios params to monitored cron" do
+      should contain_periodicnoise__monitored_cron(title).with({
+        :command                     => spoolfile,
+        :user                        => 'root',
+        :nagios_template             => 'some-service-template',
+        :nagios_freshness_threshold  => 120,
+      })
+    end
+  end
 end
