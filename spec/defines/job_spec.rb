@@ -80,6 +80,23 @@ describe 'duplicity::job' do
     end
   end
 
+  context "with multiple directories" do
+    let(:params) {
+      {
+        :bucket       => 'somebucket',
+        :directory    => ['/etc/', '/var/'],
+        :dest_id      => 'some_id',
+        :dest_key     => 'some_key',
+        :spoolfile    => spoolfile,
+      }
+    }
+
+    it "adds spoolfile which contains the generated backup script and backups multiple directories" do
+      should contain_file(spoolfile) \
+        .with_content(/^duplicity --full-if-older-than 30D --s3-use-new-style --no-encryption --include '\/etc\/' --include '\/var\/' --exclude '\*\*' \/ 's3\+http:\/\/somebucket\/#{fqdn}\/some_backup_name\/'$/)
+    end
+  end
+
   context "with defined force full-backup" do
 
     let(:params) {
