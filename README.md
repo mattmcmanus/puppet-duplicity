@@ -45,6 +45,19 @@ For example: Remove backups older than 6 months:
       remove_older_than => '6M',
     }
 
+Backup Multiple Directories
+--------------------------
+
+You can backup multiple directories by specifying an array of directories.
+
+    duplicity { 'my_backup':
+      directory => [ '/home', '/var/www' ],
+      bucket => 'test-backup',
+      dest_id => 'someid',
+      dest_key => 'somekey',
+      remove_older_than => '6M',
+    }
+
 Global Parameters
 -----------------
 
