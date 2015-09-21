@@ -49,16 +49,6 @@ define duplicity::job(
     default => $pubkey_id
   }
 
-  $rhour = $hour ? {
-    undef => $duplicity::params::hour,
-    default => $hour
-  }
-
-  $rminute = $minute ? {
-    undef => $duplicity::params::minute,
-    default => $minute
-  }
-
   $rfull_if_older_than = $full_if_older_than ? {
     undef => $duplicity::params::full_if_older_than,
     default => $full_if_older_than
