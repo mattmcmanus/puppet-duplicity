@@ -80,7 +80,25 @@ private key. This ensures no secret credentials fly around on the machines. Incr
 work as long as the metadata cache on the node is up to date. Duplicity will force a full backup
 otherwise because it cannot decrypt anything it downloads from the bucket.
 
+It's possible to add multiple encryption keys with the pubkey_id parameter as
+an array. Despite the parameter name keys can be specified in all ways recognized
+by gpg, not only as keyids.
+
 Check https://answers.launchpad.net/duplicity/+question/107216 for more information.
+
+Backup over SSH
+---------------
+
+To backup to an SSH server, specify an SSH URL as the target and configure SSH public key
+authentication. The ssh_id parameter takes the path to the SSH private key. The key must be
+generated separately without a password and the public part has to be added to the
+authorized_keys file on the backup server.
+
+Backup multiple directories
+---------------------------
+
+Multiple directories with otherwise the same settings can be backed up in a single job.
+Just give the "diretory" parameter an array of paths.
 
 Install duplicity without a backup job
 --------------------------------------

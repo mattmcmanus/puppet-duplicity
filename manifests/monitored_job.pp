@@ -1,6 +1,7 @@
 define duplicity::monitored_job(
   $ensure = 'present',
   $directory = undef,
+  $target = undef,
   $bucket = undef,
   $dest_id = undef,
   $dest_key = undef,
@@ -24,6 +25,7 @@ define duplicity::monitored_job(
     ensure => $ensure,
     spoolfile => $spoolfile,
     directory => $directory,
+    target => $target,
     bucket => $bucket,
     dest_id => $dest_id,
     dest_key => $dest_key,

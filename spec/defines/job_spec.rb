@@ -30,6 +30,23 @@ describe 'duplicity::job' do
       .with_mode('0700')
   end
 
+  context "multiple directories" do
+    let(:params) {
+      {
+        :target    => 'scheme://sometarget',
+        :directory => ['/etc/', '/var/'],
+        :dest_id   => 'some_id',
+        :dest_key  => 'some_key',
+        :spoolfile => spoolfile,
+      }
+    }
+
+    it "adds a spoolfile which contains the backup directories" do
+      should contain_file(spoolfile) \
+        .with_content(/duplicity .* --include '\/etc\/' --include '\/var\/' /)
+    end
+  end
+
   context "cloud files environment" do
 
     let(:params) {
@@ -45,9 +62,9 @@ describe 'duplicity::job' do
 
     it "adds a spoolfile which contains the generated backup script" do
       should contain_file(spoolfile) \
-        .with_content(/^CLOUDFILES_USERNAME='some_id'$/)\
-        .with_content(/^CLOUDFILES_APIKEY='some_key'$/)\
-        .with_content(/^duplicity --full-if-older-than 30D --s3-use-new-style --no-encryption --include '\/etc\/' --exclude '\*\*' \/ 'cf\+http:\/\/somebucket'$/)
+        .with_content(/^export CLOUDFILES_USERNAME='some_id'$/)\
+        .with_content(/^export CLOUDFILES_APIKEY='some_key'$/)\
+        .with_content(/^duplicity --verbosity warning --no-print-statistics --full-if-older-than 30D --s3-use-new-style --no-encryption --include '\/etc\/' --exclude '\*\*' \/ 'cf\+http:\/\/somebucket'$/)
     end
   end
 
@@ -65,9 +82,9 @@ describe 'duplicity::job' do
 
     it "adds spoolfile which contains the generated backup script" do
       should contain_file(spoolfile) \
-        .with_content(/^AWS_ACCESS_KEY_ID='some_id'$/)\
-        .with_content(/^AWS_SECRET_ACCESS_KEY='some_key'$/)\
-        .with_content(/^duplicity --full-if-older-than 30D --s3-use-new-style --no-encryption --include '\/etc\/' --exclude '\*\*' \/ 's3\+http:\/\/somebucket\/#{fqdn}\/some_backup_name\/'$/)
+        .with_content(/^export AWS_ACCESS_KEY_ID='some_id'$/)\
+        .with_content(/^export AWS_SECRET_ACCESS_KEY='some_key'$/)\
+        .with_content(/^duplicity --verbosity warning --no-print-statistics --full-if-older-than 30D --s3-use-new-style --no-encryption --include '\/etc\/' --exclude '\*\*' \/ 's3\+http:\/\/somebucket\/#{fqdn}\/some_backup_name\/'$/)
     end
 
 
@@ -132,14 +149,42 @@ describe 'duplicity::job' do
 
     it "should use pubkey encryption if keyid is provided" do
       should contain_file(spoolfile) \
-        .with_content(/--encrypt-key #{some_pubkey_id}/)
+        .with_content(/--gpg-options '--trust-model=always' --encrypt-key '#{some_pubkey_id}'/)
     end
 
     it "should download and import the specified pubkey" do
-      should contain_exec('duplicity-pgp') \
-        .with_command("gpg --keyserver subkeys.pgp.net --recv-keys #{some_pubkey_id}") \
+      should contain_exec("duplicity-pgp-#{title}") \
+        .with_command("gpg --keyserver subkeys.pgp.net --recv-keys '#{some_pubkey_id}'") \
         .with_path("/usr/bin:/usr/sbin:/bin") \
-        .with_unless("gpg --list-key #{some_pubkey_id}")
+        .with_unless(/gpg .* --list-keys '#{some_pubkey_id}'/)
+    end
+  end
+
+  context 'duplicity with multiple pubkeys for encryption' do
+    first_key       = '15ABDA79'
+    second_key      = 'DEADBEEF'
+
+    let(:params) {
+      {
+        :target    => 'scheme://sometarget',
+        :directory    => '/etc/',
+        :dest_id  => 'some_id',
+        :dest_key => 'some_key',
+        :pubkey_id   => [first_key, second_key],
+        :spoolfile => spoolfile,
+      }
+    }
+
+    it "should use pubkey encryption for both keys" do
+      should contain_file(spoolfile) \
+        .with_content(/--gpg-options '--trust-model=always' --encrypt-key '#{first_key}' --encrypt-key '#{second_key}'/)
+    end
+
+    it "should download and import the specified pubkey" do
+      should contain_exec("duplicity-pgp-#{title}") \
+        .with_command("gpg --keyserver subkeys.pgp.net --recv-keys '#{first_key}' '#{second_key}'") \
+        .with_path("/usr/bin:/usr/sbin:/bin") \
+        .with_unless(/gpg .* --list-keys '#{first_key}' '#{second_key}'/)
     end
   end
 
@@ -189,8 +234,8 @@ describe 'duplicity::job' do
 
     it "should be able to set a global cloud key pair config" do
       should contain_file(spoolfile) \
-        .with_content(/^AWS_ACCESS_KEY_ID='some_id'$/)\
-        .with_content(/^AWS_SECRET_ACCESS_KEY='some_key'$/)\
+        .with_content(/^export AWS_ACCESS_KEY_ID='some_id'$/)\
+        .with_content(/^export AWS_SECRET_ACCESS_KEY='some_key'$/)\
         .with_content(/another_bucket/)
 
     end
@@ -232,5 +277,47 @@ describe 'duplicity::job' do
         .with_ensure('absent')
     end
 
+  end
+
+  context 'cloud and target are incompatible' do
+
+    let(:params) {
+      {
+        :target       => 'ssh://someserver//some/dir',
+        :bucket       => 'somebucket',
+        :directory    => '/root/mysqldump',
+        :dest_id      => 'some_id',
+        :dest_key     => 'some_key',
+        :spoolfile => spoolfile,
+      }
+    }
+
+    it 'should fail with an error' do
+      expect {
+        should contain_file(spoolfile)
+      }.to raise_error(Puppet::Error)
+    end
+  end
+
+  context 'ssh target' do
+
+    let(:params) {
+      {
+        :target            => 'ssh://someserver//some/dir',
+        :ssh_id            => '/etc/duplicity/id_rsa',
+        :cloud             => false,
+        :bucket            => false,
+        :directory         => '/root/mysqldump',
+        :remove_older_than => '1Y',
+        :spoolfile => spoolfile,
+      }
+    }
+
+    it 'should contain target url and ssh-id in spoolfile' do
+      should contain_file(spoolfile) \
+      .with_content(/ssh:\/\/someserver\/\/some\/dir/)
+      .with_content(/^duplicity .* --ssh-options -oIdentityFile=\'\/etc\/duplicity\/id_rsa\'/)
+      .with_content(/&& duplicity remove-older-than .* --ssh-options -oIdentityFile=\'\/etc\/duplicity\/id_rsa\'/)
+    end
   end
 end
