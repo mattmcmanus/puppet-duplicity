@@ -18,7 +18,7 @@ class duplicity::params(
     ensure => directory,
     owner  => root,
     group  => root,
-    mode   => 0755,
+    mode   => '0755',
   }
 
   File[$job_spool] -> Duplicity::Job <| |>
