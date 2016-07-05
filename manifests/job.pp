@@ -168,6 +168,6 @@ define duplicity::job(
     ensure  => $ensure,
     content => template("duplicity/file-backup.sh.erb"),
     owner   => 'root',
-    mode    => 0700,
+    mode    => '0700',
   }
 }
