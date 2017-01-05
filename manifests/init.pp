@@ -11,6 +11,10 @@ define duplicity(
   $pubkey_id = undef,
   $hour = undef,
   $minute = undef,
+  $weekday = undef,
+  $month = undef,
+  $monthday = undef,
+  $user = undef,
   $full_if_older_than = undef,
   $pre_command = undef,
   $remove_older_than     = undef,
@@ -52,12 +56,35 @@ define duplicity(
     default => $minute
   }
 
+  $rweekday = $weekday ? {
+    undef => $duplicity::defaults::weekday,
+    default => $weekday
+  }
+
+  $rmonth = $month ? {
+    undef => $duplicity::defaults::month,
+    default => $month
+  }
+
+  $rmonthday = $monthday ? {
+    undef => $duplicity::defaults::monthday,
+    default => $monthday
+  }
+
+  $ruser = $user ? {
+    undef => $duplicity::defaults::user,
+    default => $user
+  }
+
   cron { $name :
     ensure => $ensure,
     command => $spoolfile,
-    user => 'root',
+    user => $ruser,
     minute => $rminute,
     hour => $rhour,
+    weekday => $rweekday,
+    month => $rmonth,
+    monthday => $rmonthday,
   }
 
   File[$spoolfile]->Cron[$name]

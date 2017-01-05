@@ -49,14 +49,20 @@ describe 'duplicity', :type => :define do
         :dest_id      => 'some_id',
         :dest_key     => 'some_key',
         :hour         => 5,
-        :minute       => 23
+        :minute       => 23,
+        :weekday      => 3,
+        :month        => 9,
+        :monthday     => 15,
       }
     }
 
     it "should be able to handle a specified backup time" do
        should contain_cron(title) \
          .with_minute(23) \
-         .with_hour(5)
+         .with_hour(5) \
+         .with_weekday(3) \
+         .with_month(9) \
+         .with_monthday(15)
     end
   end
 
